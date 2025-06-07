@@ -1,6 +1,5 @@
 import React from "react";
 import {ContextData, Monarch, ThroneCardData, ThroneDetails} from "./types";
-import ThroneDetailsCard from "../components/ThroneDetailsCard";
 
 const thrones: Array<ThroneCardData> = []
 
