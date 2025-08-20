@@ -1,7 +1,7 @@
 import {Monarch, Reign} from "../utils/types";
 import {
     base_url,
-    path_graphql_query,
+    path_graphql_query, request_find_monarchs_byname, request_find_monarchs_byyear,
     request_graphql_monarchdetails,
     request_graphql_sametimers, request_graphql_siblings, request_graphql_spouses
 } from "../utils/constants";
@@ -57,17 +57,54 @@ export async function loadSameTimers(id: string | undefined, from: Date, to: Dat
 }
 
 export async function loadSimpleMonarchList(id: string | undefined, query: string, field: string): Promise<Monarch[]> {
-    const request = buildRequest(query
-        .replace('_ID_', `${id}`))
-    console.log(request)
+    const request = buildRequest(query.replace('_ID_', `${id}`))
     const retval = await fetch(`${base_url}${path_graphql_query}`, request)
         .then(response => {
             return response.json();
         })
         .then(data => {
+            // console.log(data)
             return data.data[field].map((m: any)=>extractMonarch(m, false))
         })
     return retval;
+}
+
+export function findMonarchsByName(searchString: string) {
+    return fetchMonarchs(request_find_monarchs_byname, searchString, 'findmonarchs');
+}
+
+export function findMonarchsByYear(searchString: string) {
+    return fetchMonarchs(request_find_monarchs_byyear, searchString, 'findmonarchsyear');
+}
+
+async function fetchMonarchs(
+    requestTemplate: string,
+    searchString: string,
+    responseKey: string
+): Promise<{ id: string; name: string }[]> {
+    try {
+        const request = buildRequest(requestTemplate.replace('_SRCH_', `${searchString}`));
+        const response = await fetch(`${base_url}${path_graphql_query}`, request);
+
+        if (!response.ok) {
+            throw new Error(`Network error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        const data = result.data?.[responseKey];
+        if (!Array.isArray(data)) {
+            throw new Error('Unexpected response format');
+        }
+
+        return data.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+        }));
+    } catch (error) {
+        console.error(`Failed to fetch monarchs (${responseKey}):`, error);
+        return [];
+    }
 }
 
 // @ts-ignore
@@ -104,6 +141,7 @@ function extractMonarch(data, withDetails: boolean): Monarch {
     return {
         id: data.id,
         name: data.name,
+        description: data.description,
         url: data.url,
         gender: data.gender,
         birth: data.birth === null ? null : new Date(data.birth),

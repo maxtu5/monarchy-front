@@ -6,6 +6,7 @@ import PeopleArea from "./PeopleArea";
 import {base_url, path_graphql_query, request_graphql_thrones} from "../utils/constants";
 import {KingdomContext} from '../utils/context';
 import ThroneDetailsCard from "./ThroneDetailsCard";
+import SearchBar from "./Search/SearchBar";
 
 function Switcher() {
     const [thrones, setThrones] = useState<ThroneCardData[]>([]);
@@ -59,6 +60,7 @@ function Switcher() {
                 monarch: {
                     id: data.props.lastMonarch.monarch.id,
                     name: data.props.lastMonarch.monarch.name,
+                    description: data.props.lastMonarch.monarch.description,
                     birth: data.props.lastMonarch.monarch.birth,
                     death: data.props.lastMonarch.monarch.death,
                     url: data.props.lastMonarch.monarch.url,
@@ -124,16 +126,20 @@ function Switcher() {
                     sx={{borderRight: 1, borderColor: 'divider', width: '25%'}}
                 >
                     <Tab label="All Thrones" {...{
-                        id: `vertical-tab-0`,
+                        id: `thrones`,
                         'aria-controls': `vertical-tabpanel-0`,
                     }} />
                     <Tab label="Throne" {...{
-                        id: `vertical-tab-1`,
+                        id: `throne`,
                         'aria-controls': `vertical-tabpanel-1`,
                     }} />
                     <Tab label="People" {...{
-                        id: `vertical-tab-2`,
+                        id: `people`,
                         'aria-controls': `vertical-tabpanel-2`,
+                    }}  />
+                    <Tab label="Search" {...{
+                        id: `search`,
+                        'aria-controls': `vertical-tabpanel-3`,
                     }}  />
 
                 </Tabs>
@@ -148,6 +154,9 @@ function Switcher() {
                 </TabPanel>
                 <TabPanel value={mode} index={2}>
                     <PeopleArea/>
+                </TabPanel>
+                <TabPanel value={mode} index={3}>
+                    <SearchBar/>
                 </TabPanel>
             </Stack>
         </KingdomContext.Provider>

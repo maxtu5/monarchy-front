@@ -7,7 +7,7 @@ import DisplayName from "./DisplayName";
 
 const FamilyMemberCard = (monarch: Monarch | null, type: string) =>
     monarch === null ? (<div></div>) : (
-        <Card sx={{
+        <Card key={monarch.id} sx={{
             m: 1,
             backgroundColor: 'lightcyan'
         }}>

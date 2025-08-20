@@ -12,16 +12,9 @@ import {
 } from "../../utils/constants";
 import {Monarch} from "../../utils/types";
 
-
-// @ts-ignore
-async function getMonarchDesc(id: string | undefined): string {
-
-}
-
-
 function PersonalDetailsCard() {
     const {monarch} = useContext(KingdomContext)
-    const [decs, setDecs] = useState<string>("");
+    const [desc, setDesc] = useState<string>("");
 
     useEffect(() => {
         const request = {
@@ -30,15 +23,15 @@ function PersonalDetailsCard() {
                 'Content-Type': 'application/json',
             }
         }
-        console.log(monarch?.id)
-        console.log(request)
+        // console.log(monarch?.id)
+        // console.log(request)
 
         fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
             .then(response => {
                 return response.text();
             })
             .then(data => {
-                setDecs(data)
+                setDesc(data)
             })
     }, [])
 
@@ -77,7 +70,7 @@ function PersonalDetailsCard() {
                             }<br/>
                         </Typography>
                         <Typography variant={"body2"}>
-                            {decs}
+                            {monarch?.description==""? desc : monarch?.description}
                         </Typography>
                     </Stack>
                 </Stack>

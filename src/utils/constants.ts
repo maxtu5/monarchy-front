@@ -67,6 +67,7 @@ export const request_graphql_monarchdetails =
     `{ monarch(id:_ID_) {
     id
     name
+    description
     url
     gender
     birth
@@ -220,16 +221,30 @@ const request_graphql_simple_monarch_list_generic = `{ _QUERY_(id:"_ID_") {
 }`
 
 export const request_graphql_spouses = request_graphql_simple_monarch_list_generic
-    .replace('_QUERY_', 'rel_spouses')
+    .replace('_QUERY_', 'spouses')
 
 export const request_graphql_siblings = request_graphql_simple_monarch_list_generic
-    .replace('_QUERY_', 'rel_siblings')
+    .replace('_QUERY_', 'siblings')
 
 export const request_graphql_parent_siblings = request_graphql_simple_monarch_list_generic
-    .replace('_QUERY_', 'rel_parent_siblings')
+    .replace('_QUERY_', 'parent_siblings')
 
 export const request_graphql_niblings = request_graphql_simple_monarch_list_generic
-    .replace('_QUERY_', 'rel_niblings')
+    .replace('_QUERY_', 'niblings')
 
 export const request_graphql_cousins = request_graphql_simple_monarch_list_generic
-    .replace('_QUERY_', 'rel_cousins')
+    .replace('_QUERY_', 'cousins')
+
+export const request_find_monarchs_byname = `
+    { findmonarchs(search:"_SRCH_") {
+        id
+        name
+        }
+    }`
+
+export const request_find_monarchs_byyear = `
+    { findmonarchsyear(search:"_SRCH_") {
+        id
+        name
+        }
+    }`

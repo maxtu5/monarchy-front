@@ -25,18 +25,18 @@ export function RelativeRulers(props: { monarch: Monarch | null }) {
 
     useEffect(() => {
         if (tier > 1 && spouses === null) {
-            loadSimpleMonarchList(props.monarch?.id, request_graphql_spouses, 'rel_spouses')
+            loadSimpleMonarchList(props.monarch?.id, request_graphql_spouses, 'spouses')
                 .then(s => setSpouses(s));
-            loadSimpleMonarchList(props.monarch?.id, request_graphql_siblings, 'rel_siblings')
+            loadSimpleMonarchList(props.monarch?.id, request_graphql_siblings, 'siblings')
                 .then(s => setSiblings(s));
 
         }
         if (tier > 2 && parentSiblings === null) {
-            loadSimpleMonarchList(props.monarch?.id, request_graphql_parent_siblings, 'rel_parent_siblings')
+            loadSimpleMonarchList(props.monarch?.id, request_graphql_parent_siblings, 'parent_siblings')
                 .then(s => setParentSiblings(s))
-            loadSimpleMonarchList(props.monarch?.id, request_graphql_niblings, 'rel_niblings')
+            loadSimpleMonarchList(props.monarch?.id, request_graphql_niblings, 'niblings')
                 .then(s => setNiblings(s))
-            loadSimpleMonarchList(props.monarch?.id, request_graphql_cousins, 'rel_cousins')
+            loadSimpleMonarchList(props.monarch?.id, request_graphql_cousins, 'cousins')
                 .then(s => setCousins(s))
         }
     }, [tier]);

@@ -26,6 +26,7 @@ export interface GroupedReign extends Reign {
 export interface Monarch {
     id: string,
     name: string,
+    description: string,
     url: string,
     gender: string | null,
     birth: Date | null,
