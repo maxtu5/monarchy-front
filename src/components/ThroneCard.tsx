@@ -3,6 +3,7 @@ import {Avatar, Box, Button, Card, CardActions, CardContent, Stack, Tooltip, Typ
 import {ThroneCardData, ThroneDetails} from "../utils/types";
 import {base_url, path_graphql_query, request_graphql_thronedetails} from "../utils/constants";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import {truncateText} from "../utils/functions";
 
 interface Props {
     throneData: ThroneCardData,
@@ -13,6 +14,7 @@ interface Props {
 function ThroneCard({throneData, setDetailsData, setMode}: Props) {
 
     function loadDetails() {
+
         // @ts-ignore
         const options = {
             method: 'POST',
@@ -49,7 +51,9 @@ function ThroneCard({throneData, setDetailsData, setMode}: Props) {
                     <Stack direction={'row'} spacing={1}>
                         <Stack spacing={1}>
                             <Tooltip key={throneData.country} title={throneData.country}>
-                                <Avatar src={throneData.flagUrl}/>
+                                <Avatar src={throneData.flagUrl}
+                                        sx={{ border: '1px solid', borderColor: 'divider' }}
+                                />
                             </Tooltip>
                             <Stack direction={'row'}>
                                 <StarOutlineIcon fontSize={'small'}/>
@@ -59,15 +63,17 @@ function ThroneCard({throneData, setDetailsData, setMode}: Props) {
                             </Stack>
                         </Stack>
                         <Stack>
-                            <Typography variant="h6" component="div">
+                            <Typography noWrap={true} variant="h6" component="div">
                                 {throneData.name}
                             </Typography>
 
                             <Typography sx={{color: 'text.secondary'}}>{throneData.years}</Typography>
 
 
-                            <Typography variant="body2">
-                                {(throneData.lastMonarch.monarch.death === null ? 'Current: ' : 'Last: ') + throneData.lastMonarch.monarch.name}
+                            <Typography noWrap={true} variant="body2">
+                                {
+                                    (throneData.lastMonarch.monarch.death === null ? 'Current: ' : 'Last: ') + throneData.lastMonarch.monarch.name
+                                }
                             </Typography>
 
                         </Stack>

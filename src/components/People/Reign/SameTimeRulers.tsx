@@ -7,7 +7,7 @@ import {Avatar, Box, Card, CardContent, Divider, Link, Stack, Tooltip, Typograph
 
 export function SameTimeRulers(props: { monarch: Monarch | null }) {
     const [sameTimers, setSameTimers] = useState<Monarch[]>([]);
-    const {thrones, setMonarch} = useContext(KingdomContext)
+    const {allThrones, setMonarch} = useContext(KingdomContext)
     const reignSpan: Date[] = calcDateSpan(props.monarch?.reigns);
 
     function calcDateSpan(reigns: Reign[] | undefined): Date[] {
@@ -65,7 +65,7 @@ export function SameTimeRulers(props: { monarch: Monarch | null }) {
                                 <Stack spacing={1}>
                                     {monarchGroup.countries.map(country => (
                                         <Tooltip key={country} title={country}>
-                                            <Avatar src={thrones.find(t => t.country === country)?.flagUrl}/>
+                                            <Avatar src={allThrones.find(t => t.country === country)?.flagUrl}/>
                                         </Tooltip>
                                     ))}
                                 </Stack>

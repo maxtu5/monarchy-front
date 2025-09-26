@@ -12,7 +12,7 @@ import {
 import {Avatar, Box, Button, Card, CardContent, Link, Stack, Tooltip, Typography} from "@mui/material";
 
 export function RelativeRulers(props: { monarch: Monarch | null }) {
-    const {thrones, setMonarch} = useContext(KingdomContext)
+    const {allThrones, setMonarch} = useContext(KingdomContext)
     const [tier, setTier] = React.useState(1);
     const MAX_TIERS = 3;
     const tierCaption = ['', 'I: parents, children', 'II: parents, children, siblings, spouses', 'III plus uncles/aunts, niblings, cousins']
@@ -50,7 +50,7 @@ export function RelativeRulers(props: { monarch: Monarch | null }) {
                             .filter((value, index, array) => array.indexOf(value) === index)
                             .map(country => (
                                 <Tooltip key={country} title={country}>
-                                    <Avatar src={thrones.find(t => t.country === country)?.flagUrl}/>
+                                    <Avatar src={allThrones.find(t => t.country === country)?.flagUrl}/>
                                 </Tooltip>
                             ))}
                     </Stack>

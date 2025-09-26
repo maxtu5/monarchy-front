@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Box, Card, CardContent, Icon, Link, Stack, Typography} from "@mui/material";
-import {KingdomContext} from "../../utils/context";
+import {KingdomContext, ModeContext} from "../../utils/context";
 
 import FamilyMemberCard from "./FamilyMemberCard";
 import {compareDates} from "../../utils/functions";
@@ -22,6 +22,7 @@ type Relation =
     | 'parent_siblings'
     | 'cousins'
     | 'niblings';
+
 function getRelationLabel(relation: Relation, gender: Gender): string {
     console.log(relation, gender)
     switch (relation) {
@@ -43,70 +44,61 @@ function getRelationLabel(relation: Relation, gender: Gender): string {
 
 
 function FamilyCard() {
-    const {monarch, setMonarch, setMode} = useContext(KingdomContext)
+    const {setMode} = useContext(ModeContext)
+    const {monarch, setMonarch} = useContext(KingdomContext)
     const [relatives, setRelatives] = useState<Map<Relation, Monarch[]>>(new Map<Relation, Monarch[]>())
-    const [loadedRelatives, setLoadedRelatives] = useState(false)
     const order: Relation[] = ['spouses', 'siblings', 'parent_siblings', 'cousins', 'niblings']
 
     useEffect(() => {
-        if (!loadedRelatives) {
-            const loaders = [
-                loadSimpleMonarchList(monarch?.id, request_graphql_spouses, 'spouses'),
-                loadSimpleMonarchList(monarch?.id, request_graphql_siblings, 'siblings'),
-                loadSimpleMonarchList(monarch?.id, request_graphql_parent_siblings, 'parent_siblings'),
-                loadSimpleMonarchList(monarch?.id, request_graphql_niblings, 'niblings'),
-                loadSimpleMonarchList(monarch?.id, request_graphql_cousins, 'cousins'),
-            ];
+        const loaders = [
+            loadSimpleMonarchList(monarch?.id, request_graphql_spouses, 'spouses'),
+            loadSimpleMonarchList(monarch?.id, request_graphql_siblings, 'siblings'),
+            loadSimpleMonarchList(monarch?.id, request_graphql_parent_siblings, 'parent_siblings'),
+            loadSimpleMonarchList(monarch?.id, request_graphql_niblings, 'niblings'),
+            loadSimpleMonarchList(monarch?.id, request_graphql_cousins, 'cousins'),
+        ];
 
-            Promise.all(loaders).then(([spouses, siblings, parentSiblings, niblings, cousins]) => {
-                const newRelatives = new Map();
-                if (spouses.length) newRelatives.set('spouses', spouses);
-                if (siblings.length) newRelatives.set('siblings', siblings);
-                if (parentSiblings.length) newRelatives.set('parent_siblings', parentSiblings);
-                if (niblings.length) newRelatives.set('niblings', niblings);
-                if (cousins.length) newRelatives.set('cousins', cousins);
+        Promise.all(loaders).then(([spouses, siblings, parentSiblings, niblings, cousins]) => {
+            const newRelatives = new Map();
+            if (spouses.length) newRelatives.set('spouses', spouses);
+            if (siblings.length) newRelatives.set('siblings', siblings);
+            if (parentSiblings.length) newRelatives.set('parent_siblings', parentSiblings);
+            if (niblings.length) newRelatives.set('niblings', niblings);
+            if (cousins.length) newRelatives.set('cousins', cousins);
 
-                setRelatives(newRelatives); // assuming you're using useState for relatives
-                setLoadedRelatives(true);
-            });
-        }
-    }, [loadedRelatives, monarch?.id]);
+            setRelatives(newRelatives);
+        });
+    }, [monarch?.id]);
 
     console.log(relatives)
     return (
-        <Card variant="outlined">
-            <CardContent>
-                <Typography gutterBottom sx={{color: 'text.secondary', fontSize: 14, mb: 1.5}}>
-                    {monarch?.status}
-                </Typography>
-                <Stack direction={'row'} spacing={2} paddingBottom={'0.5rem'}>
-                    {FamilyMemberCard(monarch?.mother ? monarch.mother : null, 'Mother')}
-                    {FamilyMemberCard(monarch?.father ? monarch.father : null, 'Father')}
-                </Stack>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        gap: '0.5rem',
-                        bgcolor: 'background.paper',
-                        // borderRadius: 1,
-                    }}
-                >
-                    {monarch?.children
-                        .sort((a, b) => compareDates(a.birth, b.birth))
-                        .map((child, index) =>
-                            FamilyMemberCard(child, `Child ${index + 1}`)
-                        )}
-                </Box>
-                <Stack>
-                    {Array.from(relatives).sort(([keyA], [keyB]) => {
-                        const indexA = order.indexOf(keyA);
-                        const indexB = order.indexOf(keyB);
-                        return indexA - indexB;
-                    })
-                        .flatMap(([key, value]) => value.map(mon => {
-                            return   <Typography key={mon.id}>
+        <Box sx={{
+            p: 1,
+            borderRadius: 2,
+            border: '1px solid lightgray',
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 1,
+            bgcolor: 'background.paper',
+        }}>
+            <FamilyMemberCard monarch={monarch?.mother ? monarch.mother : null} type={'Mother'}/>
+            <FamilyMemberCard monarch={monarch?.father ? monarch.father : null} type={'Father'}/>
+
+            {monarch?.children
+                .sort((a, b) => compareDates(a.birth, b.birth))
+                .map((child, index) =>
+                    <FamilyMemberCard monarch={child} type={`Child ${index + 1}`}/>
+                )}
+
+            <Stack width={'100%'}>
+                {Array.from(relatives).sort(([keyA], [keyB]) => {
+                    const indexA = order.indexOf(keyA);
+                    const indexB = order.indexOf(keyB);
+                    return indexA - indexB;
+                })
+                    .flatMap(([key, value]) => value.map(mon => {
+                            return <Typography key={mon.id}>
                                 {`${getRelationLabel(key, mon.gender as Gender)} - `}
                                 <Link onClick={async () => {
                                     // @ts-ignore
@@ -122,9 +114,8 @@ function FamilyCard() {
 
                         })
                     )}
-                </Stack>
-            </CardContent>
-        </Card>
+            </Stack>
+        </Box>
     )
 }
 

@@ -1,12 +1,13 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {KingdomContext} from "../../utils/context";
+import {KingdomContext, ModeContext} from "../../utils/context";
 import {Box, Button, Link, Stack, TextField, Typography} from "@mui/material";
 import {findMonarchsByName, findMonarchsByYear, loadMonarch} from "../../fetchers/MonarchFetcher";
 import {Monarch} from "../../utils/types";
 
 
 function SearchBar() {
-    const {monarch, setMonarch, setMode} = useContext(KingdomContext)
+    const {setMode} = useContext(ModeContext)
+    const {setMonarch} = useContext(KingdomContext)
     const ITEMS_PER_PAGE = 15;
 
     const [searchTerm, setSearchTerm] = useState('');

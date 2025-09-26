@@ -1,10 +1,20 @@
-import {Monarch, Reign} from "../utils/types";
+import {Monarch, Reign, ThroneCardData} from "../utils/types";
 import {
     base_url,
     path_graphql_query, request_find_monarchs_byname, request_find_monarchs_byyear,
     request_graphql_monarchdetails,
-    request_graphql_sametimers, request_graphql_siblings, request_graphql_spouses
+    request_graphql_sametimers, request_graphql_siblings, request_graphql_spouses, request_graphql_thrones
 } from "../utils/constants";
+import {handleThroneApiData} from "../utils/functions";
+
+export function loadAllThrones(): Promise<ThroneCardData[]> {
+    const request = buildRequest(request_graphql_thrones);
+
+    return fetch(`${base_url}${path_graphql_query}`, request)
+        .then(response => response.json())
+        .then(data => data.data.thrones.map((t: any) => handleThroneApiData(t)));
+}
+
 
 function buildRequest(s: string): RequestInit {
     return {

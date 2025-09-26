@@ -55,10 +55,9 @@ export interface ThroneDetails extends ThroneBase {
 }
 
 export interface ContextData {
-    thrones: ThroneCardData[],
+    allThrones: ThroneCardData[],
+    throne: ThroneDetails | null,
+    setThrone: (ThroneDetails: ThroneDetails) => void,
     monarch: Monarch | null,
-    selectedThrone: ThroneDetails | null,
-    setSelectedThrone: (ThroneDetails: ThroneDetails) => void,
-    setMonarch: (m: Monarch | null)=> void,
-    setMode: (n: number) => void
+    setMonarch: (m: Monarch | null)=> void
 }

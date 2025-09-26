@@ -9,7 +9,7 @@ import {ExtraReignsPanel} from "./ExtraReignsPanel";
 
 function ReignCard() {
     const [panelSelector, setPanelSelector] = React.useState(0)
-    const {monarch, thrones} = useContext(KingdomContext)
+    const {monarch, allThrones} = useContext(KingdomContext)
 
     function groupReigns(reigns: Reign[]): { countries: string[]; reigns: Reign[] }[] {
         const groupedMap: { countries: string[], reigns: Reign[] }[] = []
@@ -46,7 +46,7 @@ function ReignCard() {
     function Flags(props: { countries: string[] }) {
         return (<Stack spacing={1}>{props.countries.map(country => (
             <Tooltip key={country} title={country}>
-                <Avatar src={thrones.find(t => t.country === country)?.flagUrl}/>
+                <Avatar src={allThrones.find(t => t.country === country)?.flagUrl}/>
             </Tooltip>
         ))}</Stack>);
     }
@@ -108,9 +108,9 @@ function ReignCard() {
             // @ts-ignore
               sx={{display: monarch.reigns.length > 0 ? '' : 'none'}}>
             <CardContent>
-                <Typography gutterBottom sx={{color: 'text.secondary', fontSize: 14, mb: 1.5}}>
-                    Reigns
-                </Typography>
+                {/*<Typography gutterBottom sx={{color: 'text.secondary', fontSize: 14, mb: 1.5}}>*/}
+                {/*    Reigns*/}
+                {/*</Typography>*/}
 
                 {groupReigns(monarch?.reigns || [])
                     .map(reignsGroup => (

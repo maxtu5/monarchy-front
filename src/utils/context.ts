@@ -7,10 +7,15 @@ const monarch: Monarch | null = null
 
 export const KingdomContext = React.createContext<ContextData>(
     {
-        thrones: thrones,
+        allThrones: thrones,
         monarch: monarch,
-        selectedThrone: null,
-        setSelectedThrone: (throne: ThroneDetails | null)=>{},
-        setMonarch: function (m: Monarch | null): void {},
-            setMode: (n: number)=>{}
+        throne: null,
+        setThrone: (throne: ThroneDetails | null)=>{},
+        setMonarch: function (m: Monarch | null): void {}
     })
+
+export const ModeContext = React.createContext<{
+    mode: number,
+    setMode: (i: number)=>void,
+    allModes: {label: string, component: JSX.Element}[]}>
+({mode:0, setMode:(i: number)=>{}, allModes:[]})

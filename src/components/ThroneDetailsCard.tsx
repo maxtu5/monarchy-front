@@ -1,9 +1,14 @@
 import React, {useContext} from 'react';
-import {Avatar, Box, Button, Card, CardActions, CardContent, Stack, Tooltip, Typography} from "@mui/material";
-import {Monarch, ThroneCardData, ThroneDetails} from "../utils/types";
+import {
+    Avatar,
+    Box,
+    CircularProgress,
+    Stack,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import {KingdomContext} from "../utils/context";
 import DisplayName from "./People/DisplayName";
-import {mergeTwoDatesCol} from "../utils/functions";
 
 function mergeTwoDates(start: Date | null, end: Date | null): string {
     const first = start == null ? 'NA' : start.toString().slice(0, 4)
@@ -11,27 +16,27 @@ function mergeTwoDates(start: Date | null, end: Date | null): string {
     return first + '-' + last
 }
 
-interface Props {
-    selectedThrone: ThroneDetails | null,
-    setMode: (value: number) => void
-}
+function ThroneDetailsCard() {
+    const {allThrones, throne} = useContext(KingdomContext)
 
-function ThroneDetailsCard({selectedThrone, setMode}: Props) {
-    const {thrones} = useContext(KingdomContext)
+    if (throne === null) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-
-    // @ts-ignore
-    return selectedThrone == null ? (<span/>) :
-        (<Stack spacing={2}>
+    return (<Stack spacing={2}>
             <Stack direction="row" spacing={2}>
-                <Tooltip key={selectedThrone.country} title={selectedThrone.country}>
-                    <Avatar src={thrones.find(t => t.country === selectedThrone.country)?.flagUrl}/>
+                <Tooltip key={throne.country} title={throne.country}>
+                    <Avatar src={allThrones.find(t => t.country === throne.country)?.flagUrl}/>
                 </Tooltip>
                 <Typography variant={'h6'}>
-                    {selectedThrone.name}
+                    {throne.name}
                 </Typography>
             </Stack>
-            {selectedThrone.restMonarchs.map(re => (
+            {throne.restMonarchs.map(re => (
                 <Stack direction="row" spacing={1}>
                     <Stack>
                         <Typography>{re.reign.end === null ? 'NA' : re.reign.end.toString().slice(0, 4)}</Typography>

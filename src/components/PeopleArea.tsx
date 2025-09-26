@@ -1,21 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
 import ChooseMonarch from "./ChooseMonarch";
 import MonarchPanel from './People/MonarchPanel';
-import {KingdomContext} from "../utils/context";
+import {KingdomContext, ModeContext} from "../utils/context";
 
 
 function PeopleArea() {
+    const {setMode} = useContext(ModeContext)
     const {monarch} = useContext(KingdomContext)
-    return (
-        <div>
-            { monarch === null &&
-                <ChooseMonarch/>
-            }
-            { monarch !== null &&
-                <MonarchPanel/>
-            }
-        </div>
-    );
+    if (monarch===null) setMode(3)
+    return (<MonarchPanel/>);
 }
 
 export default PeopleArea;
