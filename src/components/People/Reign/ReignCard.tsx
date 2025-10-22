@@ -1,11 +1,12 @@
 import React, {useContext} from 'react';
-import {Avatar, Button, Card, CardContent, Stack, Tooltip, Typography} from "@mui/material";
+import {Avatar, Box, Button, Card, CardContent, Stack, Tooltip, Typography} from "@mui/material";
 
 import {KingdomContext} from "../../../utils/context";
 import {compareDates, lifeTime, mergeTwoDates} from "../../../utils/functions";
 import DisplayName from "../DisplayName";
 import {GroupedReign, Reign} from "../../../utils/types";
-import {ExtraReignsPanel} from "./ExtraReignsPanel";
+import {SameTimeRulers} from "./SameTimeRulers";
+import PersonTile from "../Family/PersonTile";
 
 function ReignCard() {
     const [panelSelector, setPanelSelector] = React.useState(0)
@@ -44,9 +45,10 @@ function ReignCard() {
     }
 
     function Flags(props: { countries: string[] }) {
-        return (<Stack spacing={1}>{props.countries.map(country => (
+        return (<Stack direction={'row'} spacing={1}>{props.countries.map(country => (
             <Tooltip key={country} title={country}>
-                <Avatar src={allThrones.find(t => t.country === country)?.flagUrl}/>
+                <Avatar sx={{width: 24, height: 24}}
+                        src={allThrones.find(t => t.country === country)?.flagUrl}/>
             </Tooltip>
         ))}</Stack>);
     }
@@ -67,7 +69,7 @@ function ReignCard() {
                                     <Stack>
                                         <Typography
                                             sx={{color: 'text.secondary'}}>Predecessor</Typography>
-                                        <Typography>{`Himself as ${props.reigns[index-1].title}`}</Typography>
+                                        <Typography>{`Himself as ${props.reigns[index - 1].title}`}</Typography>
                                     </Stack> :
                                     <DisplayName monarch={reign.predecessor} type={'Predecessor'}
                                                  displayCrown={false}/>
@@ -84,10 +86,10 @@ function ReignCard() {
                                     <Stack>
                                         <Typography
                                             sx={{color: 'text.secondary'}}>Successor</Typography>
-                                        <Typography>{`Himself as ${props.reigns[index+1].title}`}</Typography>
+                                        <Typography>{`Himself as ${props.reigns[index + 1].title}`}</Typography>
                                     </Stack> :
-                                <DisplayName monarch={reign.successor} type={'Successor'}
-                                             displayCrown={false}/>
+                                    <DisplayName monarch={reign.successor} type={'Successor'}
+                                                 displayCrown={false}/>
                                 }
                                 <Typography variant="body2" component="div">
                                     {mergeTwoDates(reign.successor.reigns[0].start, reign.successor.reigns[0].end)}
@@ -104,33 +106,46 @@ function ReignCard() {
     }
 
     return (
-        <Card variant="outlined"
-            // @ts-ignore
-              sx={{display: monarch.reigns.length > 0 ? '' : 'none'}}>
-            <CardContent>
-                {/*<Typography gutterBottom sx={{color: 'text.secondary', fontSize: 14, mb: 1.5}}>*/}
-                {/*    Reigns*/}
-                {/*</Typography>*/}
+        <Box sx={{
+            p: 1,
+            borderRadius: 2,
+            border: '1px solid lightgray',
+            display: monarch?.reigns && monarch.reigns.length > 0 ? 'flex' : 'none',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 1,
+            bgcolor: 'background.paper',
+        }}>
 
-                {groupReigns(monarch?.reigns || [])
+            {monarch?.reigns && (monarch?.reigns?.length > 0 ?
+                groupReigns(monarch?.reigns || []).map((reignGroup) =>
+                    <PersonTile width={'30%'}>
+                        <Stack direction={'row'} spacing={1}>
+                            <Flags countries={reignGroup.countries}/>
+                            <Typography variant={'body2'}
+                                        sx={{color: 'text.secondary'}}>{reignGroup.countries}</Typography>
+                        </Stack>
+
+                        {reignGroup.reigns.map(reign =>
+                            <>
+                                <Typography variant="body2" component="div">
+                                    {reign.title}
+                                </Typography>
+                                <Typography variant="body2" component="div">
+                                    {mergeTwoDates(reign.start, reign.end) + lifeTime(reign.start, reign.end)}
+                                </Typography>
+                            </>)}
+                    </PersonTile>)
+                :
+                groupReigns(monarch?.reigns || [])
                     .map(reignsGroup => (
                         <Stack direction={"row"} spacing={2}>
                             <Flags countries={reignsGroup.countries}/>
                             <Reigns reigns={reignsGroup.reigns}/>
                         </Stack>
-                    ))
-                }
-
-                <Stack direction={'row'} spacing={1} paddingTop={1}>
-                    <Button onClick={()=>setPanelSelector(panelSelector===1 ? 0 : 1)}>{(panelSelector===1 ? 'HIDE' : 'SHOW') + ' RULERS OF THE SAME TIME'}</Button>
-                    <Button onClick={()=>setPanelSelector(panelSelector===2 ? 0 : 2)}>{(panelSelector===2 ? 'HIDE' : 'SHOW') + ' RELATIVE WHO RULED'}</Button>
-                    <Button>SHOW SHORTEST PATHS</Button>
-                </Stack>
-
-                {panelSelector===0 ? <span></span> : <ExtraReignsPanel mode={panelSelector} monarch={monarch}/>}
-
-            </CardContent>
-        </Card>
+                    )))
+            }
+        </Box>
     );
 }
 

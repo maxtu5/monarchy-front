@@ -181,13 +181,15 @@ export const request_graphql_monarchdetails =
 }
 }`
 
-export const request_graphql_sametimers = `{ sametimerulers(input:{id:"_ID_", from:"_FROM_", to: "_TO_"}) {
+export const request_graphql_sametimers = `{ sametimerulers(input:{from:"_FROM_", to: "_TO_"}) {
         id
         name
         url
         gender
         birth
         death
+        imageUrl
+        imageCaption
         reigns {
             id
             title

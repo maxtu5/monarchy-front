@@ -1,14 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Box, Card, CardContent, CardMedia, Link, Stack, Typography} from "@mui/material";
 import {KingdomContext} from "../../utils/context";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import {lifeTime} from "../../utils/functions";
-import {
-    second_url
-} from "../../utils/constants";
-import {Monarch} from "../../utils/types";
 
-function PersonalDetailsCard() {
+
+function Infobox() {
     const {monarch} = useContext(KingdomContext)
 
     return (
@@ -60,4 +56,4 @@ function PersonalDetailsCard() {
     );
 }
 
-export default PersonalDetailsCard;
+export default Infobox;

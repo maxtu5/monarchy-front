@@ -6,12 +6,19 @@ import {loadMonarch} from "../../fetchers/MonarchFetcher";
 import {KingdomContext, ModeContext} from "../../utils/context";
 
 interface Props {
-    monarch: Monarch | null,
-    type: string,
-    displayCrown: boolean
+    monarch: Monarch | null;
+    type: string;
+    displayCrown: boolean;
+    crownOnClick?: () => void; // Make it optional
 }
 
-const DisplayName = ({monarch, type, displayCrown}: Props) => {
+const DisplayName = ({
+                         monarch,
+                         type,
+                         displayCrown,
+                         crownOnClick = () => {}, // Default to no-op function
+                     }: Props) => {
+
     const {setMode} = useContext(ModeContext)
     const {setMonarch} = useContext(KingdomContext)
 
@@ -29,11 +36,12 @@ const DisplayName = ({monarch, type, displayCrown}: Props) => {
         <Stack direction={'row'}>
             <StarOutlineIcon
                 sx={{display: monarch && displayCrown && monarch.reigns?.length > 0 ? 'inline' : 'none'}}
+                onClick={crownOnClick}
             />
             <Typography variant="body1" component="div">
                 <Link
-                      sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-                      onClick={handleClick}
+                    sx={{cursor: 'pointer', textDecoration: 'underline'}}
+                    onClick={handleClick}
                 >
                     {monarch?.name}
                 </Link>

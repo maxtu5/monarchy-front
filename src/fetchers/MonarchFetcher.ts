@@ -50,9 +50,8 @@ export async function loadMonarch(id: string|null): Monarch | null {
     return retval
 }
 
-export async function loadSameTimers(id: string | undefined, from: Date, to: Date): Promise<Monarch[]> {
+export async function loadSameTimers(from: Date, to: Date): Promise<Monarch[]> {
     const request = buildRequest(request_graphql_sametimers
-        .replace('_ID_', `${id}`)
         .replace('_FROM_', `${from.toISOString().slice(0,10)}`)
         .replace('_TO_', `${to.toISOString().slice(0,10)}`))
 
@@ -73,7 +72,7 @@ export async function loadSimpleMonarchList(id: string | undefined, query: strin
             return response.json();
         })
         .then(data => {
-            // console.log(data)
+            console.log(field, data)
             return data.data[field].map((m: any)=>extractMonarch(m, false))
         })
     return retval;
