@@ -3,7 +3,7 @@ import {Box} from "@mui/material";
 import {KingdomContext} from "../../../utils/context";
 import {compareDates} from "../../../utils/functions";
 import {Monarch} from "../../../utils/types";
-import {loadSimpleMonarchList} from "../../../fetchers/MonarchFetcher";
+import {loadSimpleMonarchList} from "../../../fetchers/fetchers";
 import {
     request_graphql_cousins,
     request_graphql_niblings,
@@ -110,9 +110,9 @@ function FamilyCard() {
     console.log(displayedRelatives)
 
     return (<Box sx={{
-        p: 1,
-        borderRadius: 2,
-        border: '1px solid lightgray',
+        // p: 1,
+        // borderRadius: 2,
+        // border: '1px solid lightgray',
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',

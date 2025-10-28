@@ -1,16 +1,37 @@
 import React, {useContext} from 'react';
-import {Avatar, Box, Button, Card, CardContent, Stack, Tooltip, Typography} from "@mui/material";
+import {Avatar, Box, Button, Card, CardContent, Link, Stack, Tooltip, Typography} from "@mui/material";
 
-import {KingdomContext} from "../../../utils/context";
+import {KingdomContext, ModeContext} from "../../../utils/context";
 import {compareDates, lifeTime, mergeTwoDates} from "../../../utils/functions";
 import DisplayName from "../DisplayName";
 import {GroupedReign, Reign} from "../../../utils/types";
-import {SameTimeRulers} from "./SameTimeRulers";
 import PersonTile from "../Family/PersonTile";
+import displayName from "../DisplayName";
+import {loadMonarch} from "../../../fetchers/fetchers";
+
+function Xseccor(props: { onClick: () => void, displayName: string | undefined, label: string }) {
+    return (
+        <Typography variant="body2" component="div">
+            {props.label+' '}
+            <Link sx={{cursor: 'pointer', textDecoration: 'underline'}} onClick={props.onClick}>
+                {props.displayName}
+            </Link>
+        </Typography>
+    );
+}
 
 function ReignCard() {
-    const [panelSelector, setPanelSelector] = React.useState(0)
-    const {monarch, allThrones} = useContext(KingdomContext)
+    const {monarch, setMonarch, allThrones} = useContext(KingdomContext)
+    const {setMode} = useContext(ModeContext)
+
+    async function reloadMonarch(id: string) {
+        if (!monarch) return;
+        const newMonarch = await loadMonarch(id);
+        if (newMonarch) {
+            setMonarch(newMonarch);
+            setMode(2);
+        }
+    };
 
     function groupReigns(reigns: Reign[]): { countries: string[]; reigns: Reign[] }[] {
         const groupedMap: { countries: string[], reigns: Reign[] }[] = []
@@ -117,7 +138,7 @@ function ReignCard() {
             bgcolor: 'background.paper',
         }}>
 
-            {monarch?.reigns && (monarch?.reigns?.length > 0 ?
+            {monarch?.reigns && (monarch?.reigns?.length > 1 ?
                 groupReigns(monarch?.reigns || []).map((reignGroup) =>
                     <PersonTile width={'30%'}>
                         <Stack direction={'row'} spacing={1}>
@@ -126,27 +147,42 @@ function ReignCard() {
                                         sx={{color: 'text.secondary'}}>{reignGroup.countries}</Typography>
                         </Stack>
 
-                        {reignGroup.reigns.map(reign =>
+                        {reignGroup.reigns.map((reign, index) =>
                             <>
-                                <Typography variant="body2" component="div">
-                                    {reign.title}
-                                </Typography>
-                                <Typography variant="body2" component="div">
-                                    {mergeTwoDates(reign.start, reign.end) + lifeTime(reign.start, reign.end)}
-                                </Typography>
-                            </>)}
-                    </PersonTile>)
-                :
-                groupReigns(monarch?.reigns || [])
-                    .map(reignsGroup => (
-                        <Stack direction={"row"} spacing={2}>
-                            <Flags countries={reignsGroup.countries}/>
-                            <Reigns reigns={reignsGroup.reigns}/>
-                        </Stack>
-                    )))
-            }
-        </Box>
-    );
+                            <Typography variant="body2" component="div">
+                                {reign.title}
+                            </Typography>
+                            <Typography variant="body2" component="div">
+                                {mergeTwoDates(reign.start, reign.end) + lifeTime(reign.start, reign.end)}
+                            </Typography>
+                            {reign.predecessor &&
+                                <Xseccor
+                                    label={monarch?.id === reign.predecessor?.id ? 'Predecessor: Himself':'Predecessor'}
+                                    onClick={()=> {
+                                        if (reign.predecessor) reloadMonarch(reign.predecessor.id)
+                                    }}
+                                    displayName={monarch?.id === reign.predecessor?.id ? undefined : reign.predecessor?.name}/>
+                            }
+
+
+                        <Typography variant="body2" component="div">
+                            Successor
+                        </Typography>
+                    </>)}
+        </PersonTile>)
+:
+    groupReigns(monarch?.reigns || [])
+        .map(reignsGroup => (
+            <Stack direction={"row"} spacing={2}>
+                <Flags countries={reignsGroup.countries}/>
+                <Reigns reigns={reignsGroup.reigns}/>
+            </Stack>
+        ))
+)
+}
+</Box>
+)
+    ;
 }
 
 export default ReignCard;

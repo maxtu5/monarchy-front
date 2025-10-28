@@ -7,6 +7,20 @@ interface ThroneBase {
     monarchs: number
 }
 
+export interface ThroneCardData extends ThroneBase {
+    lastMonarch: {
+        reign: Reign,
+        monarch: Monarch
+    },
+}
+
+export interface ThroneDetails extends ThroneBase {
+    restMonarchs: {
+        reign: Reign,
+        monarch: Monarch
+    }[]
+}
+
 export interface Reign {
     id: string,
     title: string,
@@ -38,20 +52,6 @@ export interface Monarch {
     father: Monarch | null,
     mother: Monarch | null,
     children: Monarch[]
-}
-
-export interface ThroneCardData extends ThroneBase {
-    lastMonarch: {
-        reign: Reign,
-        monarch: Monarch
-    },
-}
-
-export interface ThroneDetails extends ThroneBase {
-    restMonarchs: {
-        reign: Reign,
-        monarch: Monarch
-    }[]
 }
 
 export interface ContextData {

@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {Monarch} from "../../utils/types";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import {Link, Stack, Typography} from "@mui/material";
-import {loadMonarch} from "../../fetchers/MonarchFetcher";
+import {loadMonarch} from "../../fetchers/fetchers";
 import {KingdomContext, ModeContext} from "../../utils/context";
 
 interface Props {
@@ -27,7 +27,7 @@ const DisplayName = ({
         const newMonarch = await loadMonarch(monarch.id);
         if (newMonarch) {
             setMonarch(newMonarch);
-            setMode(2);
+            setMode(1);
         }
     };
 

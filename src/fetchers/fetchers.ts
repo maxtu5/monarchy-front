@@ -1,13 +1,19 @@
-import {Monarch, Reign, ThroneCardData} from "../utils/types";
+import {Monarch, Reign, ThroneCardData, ThroneDetails} from "../utils/types";
 import {
     base_url,
-    path_graphql_query, request_find_monarchs_byname, request_find_monarchs_byyear,
+    path_graphql_query,
+    request_find_monarchs_byname,
+    request_find_monarchs_byyear,
     request_graphql_monarchdetails,
-    request_graphql_sametimers, request_graphql_siblings, request_graphql_spouses, request_graphql_thrones
+    request_graphql_sametimers,
+    request_graphql_siblings,
+    request_graphql_spouses,
+    request_graphql_thronedetails,
+    request_graphql_thrones
 } from "../utils/constants";
 import {handleThroneApiData} from "../utils/functions";
 
-export function loadAllThrones(): Promise<ThroneCardData[]> {
+export function fetchAllThrones(): Promise<ThroneCardData[]> {
     const request = buildRequest(request_graphql_thrones);
 
     return fetch(`${base_url}${path_graphql_query}`, request)
@@ -15,6 +21,51 @@ export function loadAllThrones(): Promise<ThroneCardData[]> {
         .then(data => data.data.thrones.map((t: any) => handleThroneApiData(t)));
 }
 
+function mapThroneDetails(response: any): ThroneDetails {
+    const throne = response.data.throne;
+
+    return {
+        id: throne.id,
+        name: throne.name,
+        country: throne.country,
+        flagUrl: throne.flagUrl,
+        years: throne.years,
+        monarchs: throne.monarchs,
+        restMonarchs: throne.allrulers.map((ruler: any) => ({
+            reign: createReign(
+                {
+                    ...ruler.reign,
+                    country: throne.country,
+                    predecessor: ruler.reign.predecessor ?? null,
+                    successor: ruler.reign.successor ?? null,
+                },
+                true // include predecessor/successor details
+            ),
+            monarch: extractMonarch(ruler.monarch, true),
+        })),
+    };
+}
+
+export function fetchThroneDetails(displayedThrone: ThroneCardData, successCallback: (td: ThroneDetails)=>void) {
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            query: request_graphql_thronedetails.replace('_COUNTRY_', displayedThrone.country)
+        })
+    };
+    fetch(`${base_url}${path_graphql_query}`, options)
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            const td = mapThroneDetails(data)
+            console.log(td);
+            successCallback(td)
+        });
+}
 
 function buildRequest(s: string): RequestInit {
     return {

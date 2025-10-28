@@ -10,12 +10,16 @@ export function lifeTime(birth: Date | null, death: Date | null): string {
 }
 
 export function mergeTwoDates(start: Date | null, end: Date | null): string {
-    const first = start === null ? 'NA' : start.toISOString().slice(0, 4)
-    const last = end === null ?
-        (start!==null && start.getFullYear()>1899 ? 'now' : 'NA') :
-        end.toISOString().slice(0, 4)
-    return first + '—' + last
+    console.log(start, end)
+    const first = start ? start.getFullYear().toString() : 'NA';
+    const last = end ? end.getFullYear().toString()
+        : (start && start.getFullYear() > 1899
+            ? 'now'
+            : 'NA');
+
+    return `${first}—${last}`;
 }
+
 export function mergeTwoDatesCol(start: Date | null, end: Date | null): string {
     console.log(start)
     const first = (start === null) ? 'NA' : start.toISOString().slice(0, 4)

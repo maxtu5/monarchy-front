@@ -28,6 +28,8 @@ export const request_graphql_thrones =
                     url
                     gender
                     status
+                    imageUrl
+                    imageCaption
                 }
             }
         }

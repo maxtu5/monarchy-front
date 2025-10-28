@@ -3,12 +3,12 @@ import './App.css';
 import {Box, Stack} from "@mui/material";
 import NavBar from "./components/NavBar";
 import {KingdomContext, ModeContext} from "./utils/context";
-import ThronesArea from "./components/ThronesArea";
-import ThroneDetailsCard from "./components/ThroneDetailsCard";
-import PeopleArea from "./components/PeopleArea";
+import AllThronesScreen from "./components/AllThronesScreen";
 import SearchBar from "./components/Search/SearchBar";
 import {Monarch, ThroneCardData, ThroneDetails} from "./utils/types";
-import {loadAllThrones} from "./fetchers/MonarchFetcher";
+import {fetchAllThrones} from "./fetchers/fetchers";
+import ThroneScreen from "./components/ThroneScreen";
+import MonarchScreen from "./components/MonarchScreen";
 
 function App() {
     const [mode, setMode] = useState(0);
@@ -17,15 +17,14 @@ function App() {
     const [throne, setThrone] = useState<ThroneDetails | null>(null)
 
     useEffect(() => {
-        loadAllThrones().then(thrones => {
+        fetchAllThrones().then(thrones => {
             setThrones(thrones);
         });
     }, [])
 
     const allModes = [
-        {label: "All Thrones", component: <ThronesArea/>},
-        {label: "Throne", component: <ThroneDetailsCard/>},
-        {label: "People", component: <PeopleArea/>},
+        {label: "All Thrones", component: <AllThronesScreen/>},
+        {label: "People", component: <MonarchScreen/>},
         {label: "Search", component: <SearchBar/>},
     ];
 

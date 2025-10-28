@@ -1,14 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Box, Grid2, IconButton, Stack, Typography} from "@mui/material";
-import Infobox from "./Infobox";
-import FamilyCard from "./Family/FamilyCard";
-import ReignCard from "./Reign/ReignCard";
-import {KingdomContext} from "../../utils/context";
-import {second_url} from "../../utils/constants";
-import {SameTimeRulers} from "./Reign/SameTimeRulers";
+import Infobox from "./People/Infobox";
+import FamilyCard from "./People/Family/FamilyCard";
+import ReignCard from "./People/Reign/ReignCard";
+import {KingdomContext} from "../utils/context";
+import {second_url} from "../utils/constants";
+import {SameTimeRulers} from "./People/Reign/SameTimeRulers";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import {compareDates, mergeTwoDates} from "../../utils/functions";
-import {Reign} from "../../utils/types";
+import {compareDates, mergeTwoDates} from "../utils/functions";
+import {Reign} from "../utils/types";
 
 function StyledOpener(props: { onClick: () => void, label: string }) {
     return (
@@ -38,7 +38,7 @@ function calcDateSpan(reigns: Reign[] | undefined): Date[] {
     return retval;
 }
 
-function MonarchPanel() {
+function MonarchScreen() {
     const {monarch} = useContext(KingdomContext)
     const [desc, setDesc] = useState<string>("");
     const [showSameTimers, setShowSameTimers] = useState(false)
@@ -46,6 +46,7 @@ function MonarchPanel() {
 
     useEffect(() => {
         setShowSameTimers(false)
+        setDesc("")
         setReignSpan(calcDateSpan(monarch?.reigns))
         if (monarch?.description) return
         const request = {
@@ -67,44 +68,34 @@ function MonarchPanel() {
     }, [monarch])
 
     return (
-        <Grid2
-            container
-            sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 1,
-                m: 1
-            }}
-        >
-            <Grid2 size={12}>
-                <Typography variant="h5" component="div">
-                    {monarch?.name}
-                </Typography>
-            </Grid2>
-
-            <Grid2 size={{xs: 12, sm: 3}}>
-                <Stack>
-                    <Infobox/>
+        <Box sx={{ display: 'flex' }}>
+            {/* Left column: 20% width */}
+            <Box sx={{ width: '20vw', pl: 1, pt:1 }}>
+                <Stack spacing={2}>
+                    <Infobox />
                     <StyledOpener
-                        onClick={()=>setShowSameTimers(!showSameTimers)}
-                        label={`Monarchs ruled in the same time ${reignSpan.length===0?'': mergeTwoDates(reignSpan[0], reignSpan[1])}`}/>
-                    {showSameTimers && <SameTimeRulers span={reignSpan}/>}
+                        onClick={() => setShowSameTimers(!showSameTimers)}
+                        label={`Monarchs ruled in the same time ${
+                            reignSpan.length === 0 ? '' : mergeTwoDates(reignSpan[0], reignSpan[1])
+                        }`}
+                    />
+                    {showSameTimers && <SameTimeRulers span={reignSpan} />}
                 </Stack>
-            </Grid2>
-            <Grid2 size={{xs: 12, sm: 8}}>
-                <Stack>
-                    <Typography m={1} variant={"body2"}>
-                        {monarch?.description == "" ? desc : monarch?.description}
-                    </Typography>
+            </Box>
 
-                    <ReignCard/>
-                    <FamilyCard/>
+            {/* Right column: 80% width */}
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2 }}>
+                <Typography variant="h5">{monarch?.name || 'Unnamed Monarch'}</Typography>
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                    {monarch?.description === '' ? desc : monarch?.description}
+                </Typography>
+                <Stack spacing={2} sx={{ mt: 2 }}>
+                    <ReignCard />
+                    <FamilyCard />
                 </Stack>
-            </Grid2>
-
-
-        </Grid2>
+            </Box>
+        </Box>
     );
 }
 
-export default MonarchPanel;
+export default MonarchScreen;

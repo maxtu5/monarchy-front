@@ -1,7 +1,7 @@
 import {Monarch, Reign} from "../../../utils/types";
 import React, {useContext, useEffect, useState} from "react";
 import {KingdomContext} from "../../../utils/context";
-import {loadMonarch, loadSameTimers} from "../../../fetchers/MonarchFetcher";
+import {loadMonarch, loadSameTimers} from "../../../fetchers/fetchers";
 import {Avatar, Box, Card, CardContent, Divider, Link, Stack, Tooltip, Typography} from "@mui/material";
 import PersonTile from "../Family/PersonTile";
 import DisplayName from "../DisplayName";

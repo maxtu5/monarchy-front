@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {KingdomContext, ModeContext} from "../../utils/context";
 import {Box, Button, Link, Stack, TextField, Typography} from "@mui/material";
-import {findMonarchsByName, findMonarchsByYear, loadMonarch} from "../../fetchers/MonarchFetcher";
+import {findMonarchsByName, findMonarchsByYear, loadMonarch} from "../../fetchers/fetchers";
 import {Monarch} from "../../utils/types";
 
 
