@@ -24,7 +24,7 @@ export function fetchAllThrones(): Promise<ThroneCardData[]> {
 function mapThroneDetails(response: any): ThroneDetails {
     const throne = response.data.throne;
 
-    return {
+    const retval =  {
         id: throne.id,
         name: throne.name,
         country: throne.country,
@@ -44,6 +44,8 @@ function mapThroneDetails(response: any): ThroneDetails {
             monarch: extractMonarch(ruler.monarch, true),
         })),
     };
+    console.log(retval)
+    return retval
 }
 
 export function fetchThroneDetails(displayedThrone: ThroneCardData, successCallback: (td: ThroneDetails)=>void) {
@@ -176,7 +178,7 @@ function createReign(r: any, withDetails: boolean): Reign {
         r.predecessor === null? null :extractMonarch(r.predecessor.monarch, false)
     if (pred!==null) pred.reigns.push(createReign(r.predecessor.reign, false))
     return {
-        id: r.id,
+        id: r.uuid,
         title: r.title,
         country: r.country,
         start: r.start===null? null : new Date(r.start),
@@ -192,14 +194,14 @@ function extractMonarch(data, withDetails: boolean): Monarch {
     const reigns: Reign[] = []
     if (data.hasOwnProperty('reigns')) {
         [...data.reigns]
-                .filter((r) => r !== null && r.id !== null && r.id !== 'null')
+                .filter((r) => r !== null && r.uuid !== null && r.uuid !== 'null')
                 .map((r) => {
                     return createReign(r, withDetails)
                 })
             .forEach(r=> reigns.push(r))
     }
     return {
-        id: data.id,
+        id: data.uuid,
         name: data.name,
         description: data.description,
         url: data.url,

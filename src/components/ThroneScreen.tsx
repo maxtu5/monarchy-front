@@ -6,7 +6,7 @@ import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import {truncateText} from "../utils/functions";
 import {KingdomContext} from "../utils/context";
 import GenericTile from "./shared/GenericTile";
-import DisplayName from "./People/DisplayName";
+import DisplayName from "./shared/DisplayName";
 
 function ThroneScreen() {
     const {allThrones, throne} = useContext(KingdomContext)

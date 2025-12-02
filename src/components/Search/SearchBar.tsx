@@ -50,7 +50,7 @@ function SearchBar() {
     const totalPages = Math.ceil(monarchs.length / ITEMS_PER_PAGE);
 
     return (
-        <Box>
+        <Box m={1}>
             <TextField
                 label="Search Monarchs"
                 variant="outlined"
@@ -58,6 +58,7 @@ function SearchBar() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 fullWidth
                 margin="normal"
+                size={'small'}
             />
             <TextField
                 label="Search by Year"
@@ -67,6 +68,7 @@ function SearchBar() {
                 onChange={(e) => setSearchYear(e.target.value)}
                 fullWidth
                 margin="normal"
+                size={'small'}
             />
             <Box mt={2}>
                 {paginatedMonarchs.length === 0 ? (
@@ -80,7 +82,7 @@ function SearchBar() {
                                 const retval: Monarch | null = await loadMonarch(monarch.id);
                                 if (retval !== null) {
                                     setMonarch(retval);
-                                    setMode(2)
+                                    setMode(1)
                                 }
                             }}>
 

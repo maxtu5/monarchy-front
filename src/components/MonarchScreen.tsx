@@ -9,22 +9,7 @@ import {SameTimeRulers} from "./People/Reign/SameTimeRulers";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import {compareDates, mergeTwoDates} from "../utils/functions";
 import {Reign} from "../utils/types";
-
-function StyledOpener(props: { onClick: () => void, label: string }) {
-    return (
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}
-             sx={{flex: 1, minWidth: '120px'}}
-        >
-            <Typography variant="caption" noWrap>{props.label}</Typography>
-            <IconButton
-                size="small"
-                onClick={props.onClick}
-            >
-                <ArrowForwardIosIcon fontSize="small"/>
-            </IconButton>
-        </Box>
-    );
-}
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 function calcDateSpan(reigns: Reign[] | undefined): Date[] {
     const retval: (Date | null)[] = [null, null];
@@ -67,24 +52,45 @@ function MonarchScreen() {
             })
     }, [monarch])
 
+    function StyledOpener(props: { onClick: () => void, label: string }) {
+        return (
+            <Box display="flex" justifyContent="space-between" alignItems="center" m={2}
+                 sx={{flex: 1, minWidth: '120px', p:1,
+                     border: '1px solid lightgray',
+                 }}
+            >
+                <Typography noWrap>{props.label}</Typography>
+                <IconButton
+                    size="small"
+                    onClick={props.onClick}
+                >
+                    {showSameTimers ? (
+                        <KeyboardArrowDownIcon fontSize="small" />
+                    ) : (
+                        <ArrowForwardIosIcon fontSize="small" />
+                    )}
+
+                </IconButton>
+            </Box>
+        );
+    }
+
     return (
         <Box sx={{ display: 'flex' }}>
             {/* Left column: 20% width */}
-            <Box sx={{ width: '20vw', pl: 1, pt:1 }}>
+            <Box sx={{ width: '20%', pl: 1, pt:1 }}>
                 <Stack spacing={2}>
                     <Infobox />
                     <StyledOpener
                         onClick={() => setShowSameTimers(!showSameTimers)}
-                        label={`Monarchs ruled in the same time ${
-                            reignSpan.length === 0 ? '' : mergeTwoDates(reignSpan[0], reignSpan[1])
-                        }`}
+                        label={`Monarchs of the time`}
                     />
                     {showSameTimers && <SameTimeRulers span={reignSpan} />}
                 </Stack>
             </Box>
 
             {/* Right column: 80% width */}
-            <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 2 }}>
+            <Box sx={{ width: '80%', overflowY: 'auto', p: 2 }}>
                 <Typography variant="h5">{monarch?.name || 'Unnamed Monarch'}</Typography>
                 <Typography variant="body2" sx={{ mt: 2 }}>
                     {monarch?.description === '' ? desc : monarch?.description}

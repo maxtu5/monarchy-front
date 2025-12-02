@@ -3,16 +3,15 @@ import {Avatar, Box, Button, Card, CardContent, Link, Stack, Tooltip, Typography
 
 import {KingdomContext, ModeContext} from "../../../utils/context";
 import {compareDates, lifeTime, mergeTwoDates} from "../../../utils/functions";
-import DisplayName from "../DisplayName";
+import DisplayName from "../../shared/DisplayName";
 import {GroupedReign, Reign} from "../../../utils/types";
-import PersonTile from "../Family/PersonTile";
-import displayName from "../DisplayName";
 import {loadMonarch} from "../../../fetchers/fetchers";
+import GenericTile from "../../shared/GenericTile";
 
 function Xseccor(props: { onClick: () => void, displayName: string | undefined, label: string }) {
     return (
         <Typography variant="body2" component="div">
-            {props.label+' '}
+            {props.label + ' '}
             <Link sx={{cursor: 'pointer', textDecoration: 'underline'}} onClick={props.onClick}>
                 {props.displayName}
             </Link>
@@ -22,16 +21,14 @@ function Xseccor(props: { onClick: () => void, displayName: string | undefined, 
 
 function ReignCard() {
     const {monarch, setMonarch, allThrones} = useContext(KingdomContext)
-    const {setMode} = useContext(ModeContext)
 
     async function reloadMonarch(id: string) {
-        if (!monarch) return;
+        if (!monarch || id === '') return;
         const newMonarch = await loadMonarch(id);
         if (newMonarch) {
             setMonarch(newMonarch);
-            setMode(2);
         }
-    };
+    }
 
     function groupReigns(reigns: Reign[]): { countries: string[]; reigns: Reign[] }[] {
         const groupedMap: { countries: string[], reigns: Reign[] }[] = []
@@ -71,7 +68,11 @@ function ReignCard() {
                 <Avatar sx={{width: 24, height: 24}}
                         src={allThrones.find(t => t.country === country)?.flagUrl}/>
             </Tooltip>
-        ))}</Stack>);
+
+        ))}
+            <Typography variant={'body2'}
+                        sx={{color: 'text.secondary'}}>{props.countries.join(', ')}</Typography>
+        </Stack>);
     }
 
     function Reigns(props: { reigns: Reign[] }) {
@@ -138,51 +139,56 @@ function ReignCard() {
             bgcolor: 'background.paper',
         }}>
 
-            {monarch?.reigns && (monarch?.reigns?.length > 1 ?
-                groupReigns(monarch?.reigns || []).map((reignGroup) =>
-                    <PersonTile width={'30%'}>
-                        <Stack direction={'row'} spacing={1}>
+            {monarch?.reigns && (groupReigns(monarch?.reigns || []).map((reignGroup) =>
+                <GenericTile width={reignGroup.reigns.length > 1 ? '100%' : '100%'}>
+                    {reignGroup.reigns.length > 1 ? <>
                             <Flags countries={reignGroup.countries}/>
-                            <Typography variant={'body2'}
-                                        sx={{color: 'text.secondary'}}>{reignGroup.countries}</Typography>
-                        </Stack>
+                            <Stack direction={'row'} spacing={2}>
+                                {reignGroup.reigns.map((reign, index) =>
+                                    <Stack>
+                                        <Typography variant="body2" component="div">
+                                            {reign.title}
+                                        </Typography>
+                                        <Typography variant="body2" component="div">
+                                            {mergeTwoDates(reign.start, reign.end) + lifeTime(reign.start, reign.end)}
+                                        </Typography>
+                                        {reign?.predecessor?.id && (
+                                            <Xseccor
+                                                label={'Predecessor: ' +
+                                                    (monarch?.id === reign.predecessor.id ? 'Himself' : '')
+                                                }
+                                                onClick={() => reloadMonarch(reign.predecessor?.id ?? '')}
+                                                displayName={
+                                                    monarch?.id === reign.predecessor.id
+                                                        ? undefined : reign.predecessor.name
+                                                }
+                                            />
+                                        )}
 
-                        {reignGroup.reigns.map((reign, index) =>
-                            <>
-                            <Typography variant="body2" component="div">
-                                {reign.title}
-                            </Typography>
-                            <Typography variant="body2" component="div">
-                                {mergeTwoDates(reign.start, reign.end) + lifeTime(reign.start, reign.end)}
-                            </Typography>
-                            {reign.predecessor &&
-                                <Xseccor
-                                    label={monarch?.id === reign.predecessor?.id ? 'Predecessor: Himself':'Predecessor'}
-                                    onClick={()=> {
-                                        if (reign.predecessor) reloadMonarch(reign.predecessor.id)
-                                    }}
-                                    displayName={monarch?.id === reign.predecessor?.id ? undefined : reign.predecessor?.name}/>
-                            }
-
-
-                        <Typography variant="body2" component="div">
-                            Successor
-                        </Typography>
-                    </>)}
-        </PersonTile>)
-:
-    groupReigns(monarch?.reigns || [])
-        .map(reignsGroup => (
-            <Stack direction={"row"} spacing={2}>
-                <Flags countries={reignsGroup.countries}/>
-                <Reigns reigns={reignsGroup.reigns}/>
-            </Stack>
-        ))
-)
-}
-</Box>
-)
-    ;
+                                        {reign.successor && (
+                                            <Xseccor
+                                                label={'Successor: ' +
+                                                    (monarch?.id === reign.successor.id ? 'Himself' : '')
+                                                }
+                                                onClick={() => reloadMonarch(reign.successor?.id ?? '')}
+                                                displayName={
+                                                    monarch?.id === reign.successor?.id
+                                                        ? undefined
+                                                        : reign.successor?.name
+                                                }
+                                            />
+                                        )}
+                                    </Stack>)}
+                            </Stack></> :
+                        <>
+                            <Flags countries={reignGroup.countries}/>
+                            <Reigns reigns={reignGroup.reigns}/>
+                        </>
+                    }
+                </GenericTile>))
+            }
+        </Box>
+    )
 }
 
 export default ReignCard;

@@ -25,39 +25,7 @@ const GenericTile: React.FC<PersonTileProps> = ({
     const {setThrone} = useContext(KingdomContext)
     const {setMode} = useContext(ModeContext)
 
-
-    function loadThroneDetails() {
-        if (!displayedThrone) return
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: request_graphql_thronedetails.replace('_COUNTRY_', displayedThrone.country)
-            })
-        };
-        fetch(`${base_url}${path_graphql_query}`, options)
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                const details: ThroneDetails = {
-                    id: displayedThrone.id,
-                    name: displayedThrone.name,
-                    country: displayedThrone.country,
-                    flagUrl: displayedThrone.flagUrl,
-                    monarchs: data.data.throne.allrulers.length + 1,
-                    years: displayedThrone.years,
-                    restMonarchs: [displayedThrone.lastMonarch, ...data.data.throne.allrulers]
-                }
-                console.log(details);
-                setThrone(details)
-                // setMode(1)
-            });
-    }
-
-    if (displayedReign) console.log(displayedReign)
+    // if (displayedReign) console.log(displayedReign)
     return (
         <Box
             sx={{
@@ -73,21 +41,26 @@ const GenericTile: React.FC<PersonTileProps> = ({
         >
             {children}
 
-            {displayedThrone && <Stack spacing={2}>
-                <Stack direction="row" spacing={2} onClick={()=> fetchThroneDetails(displayedThrone, setThrone)}>
+            {displayedThrone && <Stack direction="row" spacing={2} alignItems="flex-start"
+                       onClick={() => {
+                           setThrone(null)
+                           fetchThroneDetails(displayedThrone, setThrone)
+                       }}
+                >
                     <Tooltip key={displayedThrone.country} title={displayedThrone.country}>
-                        <Avatar src={displayedThrone.flagUrl}/>
+                        <Avatar sx={{
+                            border: '1px solid lightgray',
+                        }}
+                                src={displayedThrone.flagUrl}/>
                     </Tooltip>
-                    <Typography variant={'h6'}>
-                        {displayedThrone.country}
-                    </Typography>
-                </Stack>
-                <Stack direction={'row'}>
-                    <StarOutlineIcon fontSize={'small'}/>
-                    <Typography variant="body2" m={0}>
-                        {displayedThrone.years}
-                    </Typography>
-                </Stack>
+                    <Stack sx={{width: '100%', overflow: 'hidden'}}>
+                        <Typography variant={'h6'} noWrap>
+                            {displayedThrone.name}
+                        </Typography>
+                        <Typography variant="body2" m={0}>
+                            {displayedThrone.years}
+                        </Typography>
+                    </Stack>
             </Stack>}
 
             {displayedMonarch && <Stack direction="row">
@@ -101,11 +74,20 @@ const GenericTile: React.FC<PersonTileProps> = ({
                         objectFit: 'cover',
                     }}
                 />
-                <Stack sx={{pl: 1}}>
-                    {displayedReign &&
+                <Stack>
+                    {displayedReign ?
                         <Typography variant="body2" component="div">
                             {mergeTwoDates(displayedReign.start, displayedReign.end)}
-                        </Typography>}
+                        </Typography> :
+
+                    <Stack sx={{pl: 1}}>
+                        <Typography variant="body2" component="div">
+                            {mergeTwoDates(displayedMonarch.birth, displayedMonarch.death)}
+                        </Typography>
+                        <Typography variant="body2" component="div">
+                            {lifeTime(displayedMonarch.birth, displayedMonarch.death)}
+                        </Typography>
+                    </Stack>}
                     {/*<Typography variant="body2" component="div">*/}
                     {/*{lifeTime(displayedMonarch.birth, displayedMonarch.death)}*/}
                     {/*</Typography>*/}

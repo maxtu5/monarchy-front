@@ -3,8 +3,8 @@ import React, {useContext, useEffect, useState} from "react";
 import {KingdomContext} from "../../../utils/context";
 import {loadMonarch, loadSameTimers} from "../../../fetchers/fetchers";
 import {Avatar, Box, Card, CardContent, Divider, Link, Stack, Tooltip, Typography} from "@mui/material";
-import PersonTile from "../Family/PersonTile";
-import DisplayName from "../DisplayName";
+import DisplayName from "../../shared/DisplayName";
+import GenericTile from "../../shared/GenericTile";
 
 export function SameTimeRulers(props: { span: Date[] }) {
     const [sameTimers, setSameTimers] = useState<Monarch[]>([]);
@@ -47,14 +47,13 @@ export function SameTimeRulers(props: { span: Date[] }) {
                 }}>
 
                 {sameTimers.map(monarch=>
-                    <PersonTile monarch={monarch} width={'100%'} key={monarch.id}>
-                        <DisplayName
-                            monarch={monarch}
-                            type={monarch.reigns.map(r=>r.country).join(', ')}
-                            displayCrown={true}
-                            crownOnClick={()=> {}}
-                        />
-                    </PersonTile>)
+                        <GenericTile
+                            width={'100%'}
+                            displayedMonarch={monarch}
+                        >
+                            <DisplayName monarch={monarch} type={monarch.reigns.map(r=>r.country).join(', ')} displayCrown={false}/>
+
+                        </GenericTile>)
                 }
             </Box>
         </Box>

@@ -1,13 +1,12 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import './App.css';
-import {Box, Stack} from "@mui/material";
+import {Box} from "@mui/material";
 import NavBar from "./components/NavBar";
 import {KingdomContext, ModeContext} from "./utils/context";
 import AllThronesScreen from "./components/AllThronesScreen";
 import SearchBar from "./components/Search/SearchBar";
 import {Monarch, ThroneCardData, ThroneDetails} from "./utils/types";
 import {fetchAllThrones} from "./fetchers/fetchers";
-import ThroneScreen from "./components/ThroneScreen";
 import MonarchScreen from "./components/MonarchScreen";
 
 function App() {
@@ -23,7 +22,7 @@ function App() {
     }, [])
 
     const allModes = [
-        {label: "All Thrones", component: <AllThronesScreen/>},
+        {label: "Thrones", component: <AllThronesScreen/>},
         {label: "People", component: <MonarchScreen/>},
         {label: "Search", component: <SearchBar/>},
     ];
@@ -39,12 +38,10 @@ function App() {
     return (
         <ModeContext.Provider value={{mode: mode, setMode: setMode, allModes}}>
             <KingdomContext.Provider value={contextValue}>
-
                 <Box>
                     <NavBar/>
                     {allModes[mode].component}
                 </Box>
-
             </KingdomContext.Provider>
         </ModeContext.Provider>
     );

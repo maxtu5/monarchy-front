@@ -57,7 +57,7 @@ export interface Monarch {
 export interface ContextData {
     allThrones: ThroneCardData[],
     throne: ThroneDetails | null,
-    setThrone: (ThroneDetails: ThroneDetails) => void,
+    setThrone: (ThroneDetails: ThroneDetails|null) => void,
     monarch: Monarch | null,
     setMonarch: (m: Monarch | null)=> void
 }

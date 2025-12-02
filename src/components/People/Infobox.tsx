@@ -9,12 +9,8 @@ function Infobox() {
 
     return (
         <Card variant="outlined">
-
             <CardContent>
-                <Stack
-                    // direction={'row'}
-                    spacing={2}>
-
+                <Stack spacing={1}>
                     <Stack>
                         <CardMedia
                             component="img"
@@ -30,22 +26,36 @@ function Infobox() {
 
                     <Stack>
 
-                        {/*<Typography sx={{color: 'text.secondary', mb: 1.5}}>*/}
-                        {/*    <Link href={monarch?.url}> {monarch?.url} </Link>*/}
-                        {/*</Typography>*/}
                         <Typography variant="body2" component="div" marginBottom={1}>
-                            Birth: {(monarch?.birth === null ? 'NA' : monarch?.birth.toLocaleDateString("en-GB")) + "  "}
+                            <strong>Birth:</strong>{' '}
+                            {monarch === null || monarch?.birth === null
+                                ? 'NA'
+                                : monarch.birth.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: '2-digit',
+                                    year: 'numeric',
+                                })}
                         </Typography>
                         <Typography variant="body2" component="div" marginBottom={1}>
-
-                        {monarch?.death === null ?
+                            <strong>Death:</strong>{' '}
+                            {monarch?.death === null ?
                                 (monarch.birth !== null && monarch.birth.getFullYear() > 1899 ?
                                     lifeTime(monarch.birth, monarch === null ? null : monarch?.death) :
-                                    "Death: NA") :
-                                "Death: " + (monarch?.death === null ? 'NA' : monarch?.death?.toLocaleDateString("en-GB")) + lifeTime(monarch === null ? null : monarch.birth, monarch === null ? null : monarch?.death)
+                                    "NA") : (monarch?.death?.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: '2-digit',
+                                    year: 'numeric',
+                                }))
+                                + lifeTime(monarch === null ? null : monarch.birth, monarch === null ? null : monarch?.death)
                             }
                         </Typography>
-                        <Typography gutterBottom sx={{color: 'text.secondary', fontSize: 14, mb: 1.5}}>
+
+                        <Typography sx={{color: 'text.secondary', mb: 1.5}}>
+                            <Link target="_blank"
+                                  rel="noopener noreferrer"
+                                  href={monarch?.url}> wiki </Link>
+                        </Typography>
+                        <Typography variant={'caption'}>
                             {monarch?.status}
                         </Typography>
 

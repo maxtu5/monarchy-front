@@ -12,8 +12,8 @@ import {
     request_graphql_spouses
 } from "../../../utils/constants";
 import OpenerTile from "./OpenerTile";
-import PersonTile from "./PersonTile";
-import DisplayName from "../DisplayName";
+import DisplayName from "../../shared/DisplayName";
+import GenericTile from "../../shared/GenericTile";
 
 type Gender = 'MALE' | 'FEMALE';
 type Relation =
@@ -116,8 +116,9 @@ function FamilyCard() {
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 1,
+        gap: 1.2,
         bgcolor: 'background.paper',
+        // justifyContent:"flex-start"
     }}>
 
         {Array.from(displayedRelatives.entries())
@@ -131,10 +132,10 @@ function FamilyCard() {
                     [!showAllRelatives && <OpenerTile key="opener" setShowAll={setShowAllRelatives}/>]
                     : (['parent', 'child', 'spouses', 'opener'].includes(key) || showAllRelatives)
                         ? members.map((monarch, i) => ((monarch.reigns.length > 0 || !hideNonRuling) ?
-                                <PersonTile
+                                <GenericTile
                                     key={monarch.id}
-                                    monarch={monarch}
-                                    width={'30%'}
+                                    displayedMonarch={monarch}
+                                    width={'32.6%'}
                                 >
                                     <DisplayName
                                         monarch={monarch}
@@ -142,7 +143,7 @@ function FamilyCard() {
                                         displayCrown={monarch.reigns.length > 0}
                                         crownOnClick={()=>setHideNonRuling(!hideNonRuling)}
                                     />
-                                </PersonTile> : null
+                                </GenericTile> : null
                         ))
                         : []
             )}

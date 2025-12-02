@@ -10,7 +10,7 @@ export function lifeTime(birth: Date | null, death: Date | null): string {
 }
 
 export function mergeTwoDates(start: Date | null, end: Date | null): string {
-    console.log(start, end)
+    // console.log(start, end)
     const first = start ? start.getFullYear().toString() : 'NA';
     const last = end ? end.getFullYear().toString()
         : (start && start.getFullYear() > 1899
@@ -49,14 +49,14 @@ export function truncateText(text: string, maxLength: number): string {
 export function handleThroneApiData(data: any): ThroneCardData {
     return {
         country: data.country,
-        id: data.id,
+        id: data.uuid,
         name: data.name,
         flagUrl: data.flagUrl,
         years: data.props.years,
         monarchs: data.reignscount,
         lastMonarch: {
             reign: {
-                id: data.props.lastMonarch.reign.id,
+                id: data.props.lastMonarch.reign.uuid,
                 title: data.props.lastMonarch.reign.title,
                 country: data.props.lastMonarch.reign.country,
                 start: data.props.lastMonarch.reign.start,
@@ -66,7 +66,7 @@ export function handleThroneApiData(data: any): ThroneCardData {
                 predecessor: null
             },
             monarch: {
-                id: data.props.lastMonarch.monarch.id,
+                id: data.props.lastMonarch.monarch.uuid,
                 name: data.props.lastMonarch.monarch.name,
                 description: data.props.lastMonarch.monarch.description,
                 birth: data.props.lastMonarch.monarch.birth,

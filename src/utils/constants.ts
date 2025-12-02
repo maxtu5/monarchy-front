@@ -5,7 +5,7 @@ export const path_graphql_query = '/graphql?path=/query'
 
 export const request_graphql_thrones =
     `{ thrones {
-        id
+        uuid
         name
         country
         flagUrl
@@ -13,7 +13,7 @@ export const request_graphql_thrones =
             years
             lastMonarch {
                 reign {
-                    id
+                    uuid
                     title
                     country
                     start
@@ -21,7 +21,7 @@ export const request_graphql_thrones =
                     coronation
                 }
                 monarch {
-                    id
+                    uuid
                     name
                     birth
                     death
@@ -35,26 +35,26 @@ export const request_graphql_thrones =
         }
         reignscount
         reigns {
-            id
+            uuid
         }
     }
     }`
 
 export const request_graphql_thronedetails =
     `{ throne(country:"_COUNTRY_") {
-        id
+        uuid
         name
         country
         allrulers {
             reign { 
-                id
+                uuid
                 title
                 start
                 end
                 coronation
             }
             monarch {
-                id
+                uuid
                 name
                 birth
                 death
@@ -66,8 +66,8 @@ export const request_graphql_thronedetails =
     }`
 
 export const request_graphql_monarchdetails =
-    `{ monarch(id:_ID_) {
-    id
+    `{ monarch(uuid:_ID_) {
+    uuid
     name
     description
     url
@@ -78,7 +78,7 @@ export const request_graphql_monarchdetails =
     imageUrl
     imageCaption
     reigns {
-        id
+        uuid
         title
         start
         end
@@ -86,7 +86,7 @@ export const request_graphql_monarchdetails =
         country
          predecessor {
             monarch {
-            id
+            uuid
             name
             url
             gender
@@ -95,7 +95,7 @@ export const request_graphql_monarchdetails =
             status 
             }
             reign {
-                id
+                uuid
                 title
                 start
                 end
@@ -105,7 +105,7 @@ export const request_graphql_monarchdetails =
         }
         successor {
             monarch {
-                id
+                uuid
                 name
                 url
                 gender
@@ -114,7 +114,7 @@ export const request_graphql_monarchdetails =
                 status 
             }
             reign {
-                id
+                uuid
                 title
                 start
                 end
@@ -124,7 +124,7 @@ export const request_graphql_monarchdetails =
         }
     }
     father {
-        id
+        uuid
         name
         url
         gender
@@ -134,7 +134,7 @@ export const request_graphql_monarchdetails =
         imageUrl
         imageCaption
         reigns {
-            id
+            uuid
             title
             start
             end
@@ -143,7 +143,7 @@ export const request_graphql_monarchdetails =
         }
     }
     mother {
-        id
+        uuid
         name
         url
         gender
@@ -153,7 +153,7 @@ export const request_graphql_monarchdetails =
         imageUrl
         imageCaption
         reigns {
-            id
+            uuid
             title
             start
             end
@@ -162,7 +162,7 @@ export const request_graphql_monarchdetails =
         }
     }
     children {
-        id
+        uuid
         name
         url
         gender
@@ -172,7 +172,7 @@ export const request_graphql_monarchdetails =
         imageUrl
         imageCaption
         reigns {
-            id
+            uuid
             title
             start
             end
@@ -184,7 +184,7 @@ export const request_graphql_monarchdetails =
 }`
 
 export const request_graphql_sametimers = `{ sametimerulers(input:{from:"_FROM_", to: "_TO_"}) {
-        id
+        uuid
         name
         url
         gender
@@ -193,7 +193,7 @@ export const request_graphql_sametimers = `{ sametimerulers(input:{from:"_FROM_"
         imageUrl
         imageCaption
         reigns {
-            id
+            uuid
             title
             country
             start
@@ -203,8 +203,8 @@ export const request_graphql_sametimers = `{ sametimerulers(input:{from:"_FROM_"
     }
 }
 `
-const request_graphql_simple_monarch_list_generic = `{ _QUERY_(id:"_ID_") {
-    id
+const request_graphql_simple_monarch_list_generic = `{ _QUERY_(uuid:"_ID_") {
+    uuid
     name
     url
     gender
@@ -214,7 +214,7 @@ const request_graphql_simple_monarch_list_generic = `{ _QUERY_(id:"_ID_") {
     imageUrl
     imageCaption
     reigns {
-        id
+        uuid
         title
         start
         end
@@ -241,14 +241,14 @@ export const request_graphql_cousins = request_graphql_simple_monarch_list_gener
 
 export const request_find_monarchs_byname = `
     { findmonarchs(search:"_SRCH_") {
-        id
+        uuid
         name
         }
     }`
 
 export const request_find_monarchs_byyear = `
     { findmonarchsyear(search:"_SRCH_") {
-        id
+        uuid
         name
         }
     }`

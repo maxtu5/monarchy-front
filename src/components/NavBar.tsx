@@ -3,8 +3,8 @@ import {AppBar, Box, Button, Toolbar, Typography} from "@mui/material";
 import {KingdomContext, ModeContext} from "../utils/context";
 
 function NavBar() {
-    const {setMode, allModes} = useContext(ModeContext)
-    const {throne} = useContext(KingdomContext)
+    const {mode, setMode, allModes} = useContext(ModeContext)
+    const {monarch} = useContext(KingdomContext)
 
     return (
         <AppBar position={"sticky"}>
@@ -14,15 +14,17 @@ function NavBar() {
                     {allModes.map(mode => mode.label).map((label, index) => (
                         <Button
                             key={index}
-                            color={'inherit'}
                             variant={"outlined"}
+                            disabled={index===1 && monarch===null}
+                            sx={{
+                                bgcolor: mode === index ? "white" : "inherit",
+                                color: mode === index ? "primary" : "inherit"
+                            }}
                             onClick={() => {
                                 setMode(index)
                             }
-                        }>
-                            {index === 1 ?
-                                (throne === null ? label : throne.country) :
-                            label}
+                            }>
+                            {label}
                         </Button>
                     ))}
                 </Box>

@@ -1,12 +1,32 @@
 import React, {useContext} from 'react';
-import {Avatar, Box, CircularProgress, Grid2, Stack, Tooltip, Typography} from "@mui/material";
+import {Box, CircularProgress} from "@mui/material";
 import {KingdomContext, ModeContext} from "../utils/context";
 import GenericTile from "./shared/GenericTile";
-import DisplayName from "./People/DisplayName";
+import {SelectedThrone} from "./SelectedThrone";
+import {ThroneCardData} from "../utils/types";
+
+const sortThrones = (a: ThroneCardData, b: ThroneCardData): number => {
+    const aHasNow = a.years.toLowerCase().includes('now');
+    const bHasNow = b.years.toLowerCase().includes('now');
+    const getStartYear = (years: string): number => {
+        const match = years.match(/^(\d{1,4})/);
+        return match ? parseInt(match[1], 10) : Infinity;
+    };
+    const getEndYear = (years: string): number => {
+        const match = years.match(/(\d{1,4})$/);
+        return match ? parseInt(match[1], 10) : -Infinity;
+    };
+    if (aHasNow && !bHasNow) return -1;
+    if (!aHasNow && bHasNow) return 1;
+    if (aHasNow && bHasNow) {
+        return getStartYear(a.years) - getStartYear(b.years); // earlier start year first
+    }
+    return getEndYear(b.years) - getEndYear(a.years);
+}
 
 function AllThronesScreen() {
     const {setMode} = useContext(ModeContext);
-    const {allThrones, throne, setThrone} = useContext(KingdomContext)
+    const {allThrones,} = useContext(KingdomContext)
 
     if (allThrones.length === 0) {
         return (
@@ -17,35 +37,13 @@ function AllThronesScreen() {
     }
 
     return (
-
-        <Box sx={{display: 'flex', overflow: 'hidden'}}>
+        <Box sx={{display: 'flex', height: '100vh', overflow: 'hidden'}}>
             {/* Left column: 20% width */}
-            <Box sx={{width: '20%', pl: 1, pt: 1}}>
-                <Stack>
-                    <Stack direction={'row'} spacing={1} sx={{width: '100%'}}>
-                        <Tooltip key={throne?.country} title={throne?.country}>
-                            <Avatar src={allThrones.find(t => t.country === throne?.country)?.flagUrl}/>
-                        </Tooltip>
-                        <Typography variant={'h6'}>
-                            {throne?.name}
-                        </Typography>
-                    </Stack>
-                    <Box sx={{pl: 1, pt: 1}}>
-                        <Stack spacing={2}>
-                            {throne?.restMonarchs && throne?.restMonarchs.map(item =>
-                                <GenericTile width={'100%'} displayedMonarch={item.monarch} displayedReign={item.reign}>
-                                    <DisplayName monarch={item.monarch} type={item.reign.title} displayCrown={false}/>
-                                </GenericTile>)}
-                        </Stack>
-                    </Box>
-                </Stack>
-            </Box>
-
-
-
+            <SelectedThrone/>
             {/* Right column: 80% width */}
             <Box
                 sx={{
+
                     width: '80%',
                     p: 1,
                     display: 'flex',
@@ -55,9 +53,10 @@ function AllThronesScreen() {
                     alignContent: 'flex-start',
                 }}
             >
-                {allThrones.map((item, index) => (
-                    <GenericTile key={index} width="24%" displayedThrone={item}/>
-                ))}
+                {allThrones.sort(sortThrones)
+                    .map((item, index) => (
+                        <GenericTile key={index} width="24%" displayedThrone={item}/>
+                    ))}
             </Box>
         </Box>
     );
