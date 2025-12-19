@@ -15,7 +15,7 @@ export function SelectedThrone() {
     useEffect(() => {
         setDisplayed(throne?.restMonarchs ? throne.restMonarchs : [])
     }, [throne?.restMonarchs]);
-    console.log('physically ', displayed)
+    // console.log('physically ', displayed)
 
     return (<Box sx={{width: '20%', display: 'flex', flexDirection: 'column', paddingTop: 1}}>
         {/* Sticky top section */}

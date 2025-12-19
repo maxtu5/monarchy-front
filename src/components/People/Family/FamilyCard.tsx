@@ -107,7 +107,7 @@ function FamilyCard() {
         });
     }, [showAllRelatives]);
 
-    console.log(displayedRelatives)
+    // console.log(displayedRelatives)
 
     return (<Box sx={{
         // p: 1,

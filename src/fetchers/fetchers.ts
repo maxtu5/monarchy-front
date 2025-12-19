@@ -44,7 +44,7 @@ function mapThroneDetails(response: any): ThroneDetails {
             monarch: extractMonarch(ruler.monarch, true),
         })),
     };
-    console.log(retval)
+    // console.log(retval)
     return retval
 }
 
@@ -64,7 +64,7 @@ export function fetchThroneDetails(displayedThrone: ThroneCardData, successCallb
         })
         .then(data => {
             const td = mapThroneDetails(data)
-            console.log(td);
+            // console.log(td);
             successCallback(td)
         });
 }
@@ -83,9 +83,9 @@ function buildRequest(s: string): RequestInit {
 
 // @ts-ignore
 export async function loadMonarch(id: string|null): Monarch | null {
-    console.log(id)
+    // console.log(id)
     const request = buildRequest(request_graphql_monarchdetails.replace('_ID_', `"${id}"`))
-    console.log(request)
+    // console.log(request)
     const retval = await fetch(`${base_url}${path_graphql_query}`, request)// 'http://localhost:8080/data/thrones/', request) //
         .then(response => {
             // if (response.status === 200) {
@@ -126,7 +126,7 @@ export async function loadSimpleMonarchList(id: string | undefined, query: strin
             return response.json();
         })
         .then(data => {
-            console.log(field, data)
+            // console.log(field, data)
             return data.data[field].map((m: any)=>extractMonarch(m, false))
         })
     return retval;
