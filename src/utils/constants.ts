@@ -1,6 +1,6 @@
-export const base_url = 'http://localhost:8080'
+// export const base_url = 'http://localhost:8080'
+export const base_url = 'https://tuiken.site/monarchy-api'
 export const second_url = 'http://localhost:8081'
-// export const base_url = 'https://fa-il.fly.dev'
 export const path_graphql_query = '/graphql?path=/query'
 
 export const request_graphql_thrones =

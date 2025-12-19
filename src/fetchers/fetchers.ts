@@ -25,7 +25,7 @@ function mapThroneDetails(response: any): ThroneDetails {
     const throne = response.data.throne;
 
     const retval =  {
-        id: throne.id,
+        id: throne.uuid,
         name: throne.name,
         country: throne.country,
         flagUrl: throne.flagUrl,
@@ -83,8 +83,9 @@ function buildRequest(s: string): RequestInit {
 
 // @ts-ignore
 export async function loadMonarch(id: string|null): Monarch | null {
+    console.log(id)
     const request = buildRequest(request_graphql_monarchdetails.replace('_ID_', `"${id}"`))
-
+    console.log(request)
     const retval = await fetch(`${base_url}${path_graphql_query}`, request)// 'http://localhost:8080/data/thrones/', request) //
         .then(response => {
             // if (response.status === 200) {
@@ -160,7 +161,7 @@ async function fetchMonarchs(
         }
 
         return data.map((m: any) => ({
-            id: m.id,
+            id: m.uuid,
             name: m.name,
         }));
     } catch (error) {
