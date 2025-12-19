@@ -9,7 +9,7 @@ function NavBar() {
     return (
         <AppBar position={"sticky"}>
             <Toolbar sx={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap'}}>
-                <Typography variant="h6">MAMLAKAT</Typography>
+                <Typography variant="h6">MONARCHY</Typography>
                 <Box sx={{display: 'flex', gap: 2}}>
                     {allModes.map(mode => mode.label).map((label, index) => (
                         <Button
