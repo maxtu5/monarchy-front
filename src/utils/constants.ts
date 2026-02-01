@@ -1,5 +1,5 @@
-// export const base_url = 'http://localhost:8080'
-export const base_url = 'https://tuiken.site/monarchy-api'
+export const base_url = 'http://localhost:8080'
+// export const base_url = 'https://tuiken.site/monarchy-api'
 export const second_url = 'http://localhost:8081'
 export const path_graphql_query = '/graphql?path=/query'
 

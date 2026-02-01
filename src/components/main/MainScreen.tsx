@@ -1,0 +1,72 @@
+import {Box, Divider, Typography} from "@mui/material";
+import React, {useContext, useEffect, useState} from "react";
+import {KingdomContext} from "../../utils/context";
+import GenericTile from "../shared/GenericTile";
+import {Link} from "react-router-dom";
+import {ScrollContainer} from "../shared/ScrollContainer";
+import {Monarch} from "../../utils/types";
+import {fetchRandomNobles, loadSimpleMonarchList} from "../../fetchers/fetchers";
+import {request_graphql_spouses} from "../../utils/constants";
+import DisplayName from "../shared/DisplayName";
+
+function ThroneSelector() {
+    const {allThrones} = useContext(KingdomContext)
+
+    return (
+        <Box sx={{  m: 1, bgcolor: "#ddd" }}>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", m: 1 }}>
+                <Typography variant={'h5'}>Explore thrones</Typography>
+                <Typography variant={'h6'}><Link to={'/thrones'}>VIEW ALL =</Link></Typography>
+            </Box>
+            <Divider sx={{ mb: 0 }} />
+
+            <ScrollContainer>
+                {allThrones.map((throne) => (
+                    <GenericTile
+                        key={throne.id}
+                        width="250px"
+                        displayedThrone={throne}
+                    />
+                ))}
+            </ScrollContainer>
+        </Box>
+    )}
+
+function NobleSelector() {
+    const [randomNobles, setRandomNobles] = useState<Monarch[]>([])
+
+    useEffect(() => {
+        fetchRandomNobles().then((nobles: Monarch[])=>setRandomNobles(nobles))
+    }, []);
+
+    return (
+        <Box sx={{  m: 1, bgcolor: "#ddd" }}>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", m: 1 }}>
+                <Typography variant={'h5'}>Explore nobles</Typography>
+                <Typography variant={'h6'}><Link to={'/nobles'}>VIEW ALL =</Link></Typography>
+            </Box>
+            <Divider sx={{ mb: 0 }} />
+
+            <ScrollContainer>
+                {randomNobles.map((noble) => (
+                    <GenericTile
+                        key={noble.id}
+                        width="250px"
+                        displayedMonarch={noble}
+                    >
+                        <DisplayName monarch={noble} type={''} displayCrown={true}/>
+                    </GenericTile>
+                ))}
+            </ScrollContainer>
+        </Box>
+    );
+}
+
+export function MainScreen() {
+    return (<>
+        <ThroneSelector/>
+        <NobleSelector/>
+    </>);
+}

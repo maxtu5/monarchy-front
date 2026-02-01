@@ -10,6 +10,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import {compareDates, mergeTwoDates} from "../utils/functions";
 import {Reign} from "../utils/types";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import {loadMonarch} from "../fetchers/fetchers";
+import {useParams} from "react-router-dom";
 
 function calcDateSpan(reigns: Reign[] | undefined): Date[] {
     const retval: (Date | null)[] = [null, null];
@@ -24,10 +26,25 @@ function calcDateSpan(reigns: Reign[] | undefined): Date[] {
 }
 
 function MonarchScreen() {
-    const {monarch} = useContext(KingdomContext)
+    const {monarch, setMonarch} = useContext(KingdomContext)
     const [desc, setDesc] = useState<string>("");
     const [showSameTimers, setShowSameTimers] = useState(false)
     const [reignSpan, setReignSpan] = useState<Date[]>([])
+    const {id} = useParams();
+
+    useEffect(() => {
+        if (!id) return
+        const load = async () => {
+            try {
+                const m = await loadMonarch(id);
+                setMonarch(m);
+            } catch (err) {
+                console.error("Failed to load throne details", err);
+            }
+        };
+
+        load();
+    }, [id]);
 
     useEffect(() => {
         setShowSameTimers(false)

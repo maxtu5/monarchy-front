@@ -1,9 +1,8 @@
 import React, {useContext} from 'react';
-import {Box, CircularProgress} from "@mui/material";
-import {KingdomContext, ModeContext} from "../utils/context";
-import GenericTile from "./shared/GenericTile";
-import {SelectedThrone} from "./SelectedThrone";
-import {ThroneCardData} from "../utils/types";
+import {Box, CircularProgress, Divider, Typography} from "@mui/material";
+import {KingdomContext} from "../../utils/context";
+import {ThroneCardData} from "../../utils/types";
+import {ThroneClassifier} from "./ThroneClassifier";
 
 const sortThrones = (a: ThroneCardData, b: ThroneCardData): number => {
     const aHasNow = a.years.toLowerCase().includes('now');
@@ -24,8 +23,19 @@ const sortThrones = (a: ThroneCardData, b: ThroneCardData): number => {
     return getEndYear(b.years) - getEndYear(a.years);
 }
 
+function Classifier() {
+    return (<Box sx={{m: 1, bgcolor: "#ddd"}}>
+
+        <Box sx={{display: "flex", justifyContent: "space-between", m: 1}}>
+            <Typography variant={'h5'}>Browse thrones</Typography>
+        </Box>
+        <Divider sx={{mb: 0}}/>
+
+        <ThroneClassifier/>
+    </Box>);
+}
+
 function AllThronesScreen() {
-    const {setMode} = useContext(ModeContext);
     const {allThrones,} = useContext(KingdomContext)
 
     if (allThrones.length === 0) {
@@ -37,28 +47,9 @@ function AllThronesScreen() {
     }
 
     return (
-        <Box sx={{display: 'flex', height: '100vh', overflow: 'hidden'}}>
-            {/* Left column: 20% width */}
-            <SelectedThrone/>
-            {/* Right column: 80% width */}
-            <Box
-                sx={{
-
-                    width: '80%',
-                    p: 1,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 1,
-                    overflowY: 'auto',
-                    alignContent: 'flex-start',
-                }}
-            >
-                {allThrones.sort(sortThrones)
-                    .map((item, index) => (
-                        <GenericTile key={index} width="24%" displayedThrone={item}/>
-                    ))}
-            </Box>
-        </Box>
+        <>
+            <Classifier/>
+        </>
     );
 }
 

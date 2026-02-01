@@ -1,13 +1,12 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import './App.css';
 import {Box} from "@mui/material";
-import NavBar from "./components/NavBar";
+import NavBar from "./components/main/NavBar";
 import {KingdomContext, ModeContext} from "./utils/context";
-import AllThronesScreen from "./components/AllThronesScreen";
-import SearchBar from "./components/Search/SearchBar";
 import {Monarch, ThroneCardData, ThroneDetails} from "./utils/types";
 import {fetchAllThrones} from "./fetchers/fetchers";
-import MonarchScreen from "./components/MonarchScreen";
+import AppRouter from "./components/main/AppRouter";
+import {BrowserRouter} from "react-router-dom";
 
 function App() {
     const [mode, setMode] = useState(0);
@@ -21,12 +20,6 @@ function App() {
         });
     }, [])
 
-    const allModes = [
-        {label: "Thrones", component: <AllThronesScreen/>},
-        {label: "People", component: <MonarchScreen/>},
-        {label: "Search", component: <SearchBar/>},
-    ];
-
     const contextValue = useMemo(() => ({
         allThrones: thrones,
         throne: throne,
@@ -36,14 +29,14 @@ function App() {
     }), [thrones, monarch, throne]);
 
     return (
-        <ModeContext.Provider value={{mode: mode, setMode: setMode, allModes}}>
-            <KingdomContext.Provider value={contextValue}>
-                <Box>
-                    <NavBar/>
-                    {allModes[mode].component}
-                </Box>
-            </KingdomContext.Provider>
-        </ModeContext.Provider>
+        <BrowserRouter basename={'/monarchy'}>
+            <ModeContext.Provider value={{mode: mode, setMode: setMode}}>
+                <KingdomContext.Provider value={contextValue}>
+
+                        <AppRouter/>
+                </KingdomContext.Provider>
+            </ModeContext.Provider>
+        </BrowserRouter>
     );
 }
 

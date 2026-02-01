@@ -117,7 +117,7 @@ function FamilyCard() {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 1.2,
-        bgcolor: 'background.paper',
+        // bgcolor: 'background.paper',
         // justifyContent:"flex-start"
     }}>
 

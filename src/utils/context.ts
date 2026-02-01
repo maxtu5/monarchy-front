@@ -16,6 +16,5 @@ export const KingdomContext = React.createContext<ContextData>(
 
 export const ModeContext = React.createContext<{
     mode: number,
-    setMode: (i: number)=>void,
-    allModes: {label: string, component: JSX.Element}[]}>
-({mode:0, setMode:(i: number)=>{}, allModes:[]})
+    setMode: (i: number)=>void}>
+({mode:0, setMode:(i: number)=>{}})

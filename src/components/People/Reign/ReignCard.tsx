@@ -129,14 +129,14 @@ function ReignCard() {
 
     return (
         <Box sx={{
-            p: 1,
+            // p: 1,
             borderRadius: 2,
-            border: '1px solid lightgray',
+            // border: '1px solid lightgray',
             display: monarch?.reigns && monarch.reigns.length > 0 ? 'flex' : 'none',
             flexDirection: 'row',
             flexWrap: 'wrap',
             gap: 1,
-            bgcolor: 'background.paper',
+            // bgcolor: 'background.paper',
         }}>
 
             {monarch?.reigns && (groupReigns(monarch?.reigns || []).map((reignGroup) =>

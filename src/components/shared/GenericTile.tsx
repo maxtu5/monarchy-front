@@ -2,10 +2,8 @@ import React, {ReactNode, useContext, useEffect} from 'react';
 import {Avatar, Box, Stack, Tooltip, Typography} from '@mui/material';
 import {Monarch, Reign, ThroneCardData, ThroneDetails} from "../../utils/types";
 import {lifeTime, mergeTwoDates} from "../../utils/functions";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import {base_url, path_graphql_query, request_graphql_thronedetails} from '../../utils/constants';
 import {KingdomContext, ModeContext} from "../../utils/context";
-import {fetchAllThrones, fetchThroneDetails} from "../../fetchers/fetchers";
+import {useNavigate} from "react-router-dom";
 
 interface PersonTileProps {
     displayedThrone?: ThroneCardData,
@@ -24,28 +22,27 @@ const GenericTile: React.FC<PersonTileProps> = ({
                                                 }) => {
     const {setThrone} = useContext(KingdomContext)
     const {setMode} = useContext(ModeContext)
+    const navigate = useNavigate();
 
     // if (displayedReign) console.log(displayedReign)
     return (
         <Box
             sx={{
+                width: width,
                 p: 1,
                 borderRadius: 2,
                 border: '1px solid lightgray',
-                boxSizing: 'border-box'
-            }}
-            width={{
-                xs: '100%',
-                md: width
+                boxSizing: 'border-box',
+                flexShrink: 0,
+                bgcolor: 'white'
             }}
         >
             {children}
 
             {displayedThrone && <Stack direction="row" spacing={2} alignItems="flex-start"
                        onClick={() => {
-                           setThrone(null)
-                           fetchThroneDetails(displayedThrone, setThrone)
-                       }}
+                               navigate(`/throne/${displayedThrone.country.toLowerCase()}`);
+                           }}
                 >
                     <Tooltip key={displayedThrone.country} title={displayedThrone.country}>
                         <Avatar sx={{
@@ -53,7 +50,7 @@ const GenericTile: React.FC<PersonTileProps> = ({
                         }}
                                 src={displayedThrone.flagUrl}/>
                     </Tooltip>
-                    <Stack sx={{width: '100%', overflow: 'hidden'}}>
+                    <Stack sx={{overflow: 'hidden'}}>
                         <Typography variant={'h6'} noWrap>
                             {displayedThrone.name}
                         </Typography>

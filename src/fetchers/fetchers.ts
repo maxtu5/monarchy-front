@@ -48,14 +48,35 @@ function mapThroneDetails(response: any): ThroneDetails {
     return retval
 }
 
-export function fetchThroneDetails(displayedThrone: ThroneCardData, successCallback: (td: ThroneDetails)=>void) {
+export async function fetchThroneDetailsA(country: string): Promise<ThroneDetails> {
+    if (!country) {
+        throw new Error("Country is required");
+    }
+
+    const query = request_graphql_thronedetails.replace("_COUNTRY_", country);
+
+    const response = await fetch(`${base_url}${path_graphql_query}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+    });
+
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    return mapThroneDetails(json);
+}
+
+export function fetchThroneDetails(country: string, successCallback: (td: ThroneDetails)=>void) {
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            query: request_graphql_thronedetails.replace('_COUNTRY_', displayedThrone.country)
+            query: request_graphql_thronedetails.replace('_COUNTRY_', country)
         })
     };
     fetch(`${base_url}${path_graphql_query}`, options)
@@ -130,6 +151,53 @@ export async function loadSimpleMonarchList(id: string | undefined, query: strin
             return data.data[field].map((m: any)=>extractMonarch(m, false))
         })
     return retval;
+}
+
+export async function fetchRandomNobles(skip = 0, limit = 20): Promise<Monarch[]> {
+    const query = `
+{ findmonarchsrandom {
+                    uuid
+                    name
+                    birth
+                    death
+                    url
+                    gender
+                    status
+                    imageUrl
+                    imageCaption
+                    reigns {
+                        uuid
+                    }
+                }
+            }
+    `;
+    const request = buildRequest(query)
+    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    const json = await response.json();
+    return json.data['findmonarchsrandom'].map((m: any)=>extractMonarch(m, false))
+}
+
+export async function fetchLivingNobles(skip = 0, limit = 20): Promise<Monarch[]> {
+    const query = `
+{ findmonarchsliving {
+                    uuid
+                    name
+                    birth
+                    death
+                    url
+                    gender
+                    imageUrl
+                    imageCaption
+                    reigns {
+                        uuid
+                    }
+                }
+            }
+    `;
+    const request = buildRequest(query)
+    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    const json = await response.json();
+    return json.data['findmonarchsliving'].map((m: any)=>extractMonarch(m, false))
 }
 
 export function findMonarchsByName(searchString: string) {

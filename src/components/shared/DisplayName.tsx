@@ -2,8 +2,7 @@ import React, {useContext} from 'react';
 import {Monarch} from "../../utils/types";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import {Link, Stack, Typography} from "@mui/material";
-import {loadMonarch} from "../../fetchers/fetchers";
-import {KingdomContext, ModeContext} from "../../utils/context";
+import {useNavigate} from "react-router-dom";
 
 interface Props {
     monarch: Monarch | null;
@@ -19,16 +18,11 @@ const DisplayName = ({
                          crownOnClick = () => {}, // Default to no-op function
                      }: Props) => {
 
-    const {setMode} = useContext(ModeContext)
-    const {setMonarch} = useContext(KingdomContext)
+    const navigate = useNavigate();
 
-    const handleClick = async () => {
+    const handleClick = () => {
         if (!monarch) return;
-        const newMonarch = await loadMonarch(monarch.id);
-        if (newMonarch) {
-            setMonarch(newMonarch);
-            setMode(1);
-        }
+        navigate(`/noble/${monarch.id}`);
     };
 
     return (<>
