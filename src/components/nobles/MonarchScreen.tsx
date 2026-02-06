@@ -1,17 +1,17 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Box, Grid2, IconButton, Stack, Typography} from "@mui/material";
-import Infobox from "./People/Infobox";
-import FamilyCard from "./People/Family/FamilyCard";
-import ReignCard from "./People/Reign/ReignCard";
-import {KingdomContext} from "../utils/context";
-import {second_url} from "../utils/constants";
-import {SameTimeRulers} from "./People/Reign/SameTimeRulers";
+import {Box, IconButton, Stack, Typography} from "@mui/material";
+import Infobox from "./Infobox";
+import FamilyCard from "./family/FamilyCard";
+import ReignCard from "./reigns/ReignCard";
+import {KingdomContext} from "../../utils/context";
+import {second_url} from "../../utils/constants";
+import {SameTimeRulers} from "./reigns/SameTimeRulers";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import {compareDates, mergeTwoDates} from "../utils/functions";
-import {Reign} from "../utils/types";
+import {compareDates} from "../../utils/functions";
+import {Reign} from "../../utils/types";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {loadMonarch} from "../fetchers/fetchers";
 import {useParams} from "react-router-dom";
+import {fetchMonarch} from "../../fetchers/fetchersMonarchs";
 
 function calcDateSpan(reigns: Reign[] | undefined): Date[] {
     const retval: (Date | null)[] = [null, null];
@@ -36,14 +36,14 @@ function MonarchScreen() {
         if (!id) return
         const load = async () => {
             try {
-                const m = await loadMonarch(id);
+                const m = await fetchMonarch(id);
                 setMonarch(m);
             } catch (err) {
                 console.error("Failed to load throne details", err);
             }
         };
-
         load();
+        return ()=>setMonarch(null);
     }, [id]);
 
     useEffect(() => {
@@ -57,16 +57,14 @@ function MonarchScreen() {
                 'Content-Type': 'application/json',
             }
         }
-        // console.log(monarch?.id)
-        // console.log(request)
 
-        fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
-            .then(response => {
-                return response.text();
-            })
-            .then(data => {
-                setDesc(data)
-            })
+        // fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
+        //     .then(response => {
+        //         return response.text();
+        //     })
+        //     .then(data => {
+        //         setDesc(data)
+        //     })
     }, [monarch])
 
     function StyledOpener(props: { onClick: () => void, label: string }) {

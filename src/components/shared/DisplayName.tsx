@@ -19,6 +19,7 @@ const DisplayName = ({
                      }: Props) => {
 
     const navigate = useNavigate();
+    // console.log(monarch)
 
     const handleClick = () => {
         if (!monarch) return;

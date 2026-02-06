@@ -5,8 +5,7 @@ import GenericTile from "../shared/GenericTile";
 import {Link} from "react-router-dom";
 import {ScrollContainer} from "../shared/ScrollContainer";
 import {Monarch} from "../../utils/types";
-import {fetchRandomNobles, loadSimpleMonarchList} from "../../fetchers/fetchers";
-import {request_graphql_spouses} from "../../utils/constants";
+import {fetchRandomNobles} from "../../fetchers/fetchersMonarchs";
 import DisplayName from "../shared/DisplayName";
 
 function ThroneSelector() {
@@ -24,7 +23,7 @@ function ThroneSelector() {
             <ScrollContainer>
                 {allThrones.map((throne) => (
                     <GenericTile
-                        key={throne.id}
+                        key={throne.country}
                         width="250px"
                         displayedThrone={throne}
                     />
@@ -37,7 +36,8 @@ function NobleSelector() {
     const [randomNobles, setRandomNobles] = useState<Monarch[]>([])
 
     useEffect(() => {
-        fetchRandomNobles().then((nobles: Monarch[])=>setRandomNobles(nobles))
+        fetchRandomNobles(50)
+            .then((nobles: Monarch[])=>setRandomNobles(nobles.filter(n=>n.imageUrl!=='')))
     }, []);
 
     return (

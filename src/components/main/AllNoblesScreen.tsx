@@ -4,7 +4,7 @@ import {Monarch} from "../../utils/types";
 import {ScrollContainer} from "../shared/ScrollContainer";
 import GenericTile from "../shared/GenericTile";
 import DisplayName from "../shared/DisplayName";
-import {fetchLivingNobles} from "../../fetchers/fetchers";
+import {fetchLivingNobles} from "../../fetchers/fetchersMonarchs";
 
 function LivingSelector() {
     const [livingNobles, setLivingNobles] = useState<Monarch[]>([])

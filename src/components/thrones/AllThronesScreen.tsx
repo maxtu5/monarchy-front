@@ -1,10 +1,10 @@
 import React, {useContext} from 'react';
 import {Box, CircularProgress, Divider, Typography} from "@mui/material";
 import {KingdomContext} from "../../utils/context";
-import {ThroneCardData} from "../../utils/types";
+import {Throne} from "../../utils/types";
 import {ThroneClassifier} from "./ThroneClassifier";
 
-const sortThrones = (a: ThroneCardData, b: ThroneCardData): number => {
+const sortThrones = (a: Throne, b: Throne): number => {
     const aHasNow = a.years.toLowerCase().includes('now');
     const bHasNow = b.years.toLowerCase().includes('now');
     const getStartYear = (years: string): number => {
@@ -36,7 +36,7 @@ function Classifier() {
 }
 
 function AllThronesScreen() {
-    const {allThrones,} = useContext(KingdomContext)
+    const {allThrones} = useContext(KingdomContext)
 
     if (allThrones.length === 0) {
         return (

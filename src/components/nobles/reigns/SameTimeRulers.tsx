@@ -1,7 +1,7 @@
 import {Monarch, Reign} from "../../../utils/types";
 import React, {useContext, useEffect, useState} from "react";
 import {KingdomContext} from "../../../utils/context";
-import {loadMonarch, loadSameTimers} from "../../../fetchers/fetchers";
+import {fetchSameTimers} from "../../../fetchers/fetchersMonarchs";
 import {Avatar, Box, Card, CardContent, Divider, Link, Stack, Tooltip, Typography} from "@mui/material";
 import DisplayName from "../../shared/DisplayName";
 import GenericTile from "../../shared/GenericTile";
@@ -12,9 +12,11 @@ export function SameTimeRulers(props: { span: Date[] }) {
 
     useEffect(() => {
         if (sameTimers.length === 0)
-            loadSameTimers(props.span[0],
-            props.span[1]===null && props.span[0]!==null && props.span[0].getFullYear()>(new Date().getFullYear()-150) ? new Date() : props.span[1])
-            .then(st => setSameTimers(st));
+            fetchSameTimers(
+                props.span[0].getFullYear().toString(),
+                props.span[1]===null ? new Date().getFullYear().toString() : props.span[1].getFullYear().toString()
+            ).then(setSameTimers)
+
     }, []);
 
     function groupMonarchsByCountries(monarchs: Monarch[]): { countries: string[]; monarchs: Monarch[] }[] {

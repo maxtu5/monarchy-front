@@ -3,14 +3,8 @@ import {Box} from "@mui/material";
 import {KingdomContext} from "../../../utils/context";
 import {compareDates} from "../../../utils/functions";
 import {Monarch} from "../../../utils/types";
-import {loadSimpleMonarchList} from "../../../fetchers/fetchers";
-import {
-    request_graphql_cousins,
-    request_graphql_niblings,
-    request_graphql_parent_siblings,
-    request_graphql_siblings,
-    request_graphql_spouses
-} from "../../../utils/constants";
+import {fetchMonarchList} from "../../../fetchers/fetchersMonarchs";
+
 import OpenerTile from "./OpenerTile";
 import DisplayName from "../../shared/DisplayName";
 import GenericTile from "../../shared/GenericTile";
@@ -65,27 +59,35 @@ function FamilyCard() {
     useEffect(() => {
         setShowAllRelatives(false);
         setHideNonRuling(false)
-
+        setDisplayedRelatives(new Map<Relation, Monarch[]>())
+        // console.log(monarch)
+        if (!monarch) return
         const baseRelatives = new Map<Relation, Monarch[]>([
-            ['parent', [monarch?.mother, monarch?.father].filter(Boolean) as Monarch[]],
-            ['child', (monarch?.children ?? [])
+            ['parent', [monarch.mother, monarch.father].filter(Boolean) as Monarch[]],
+            ['child', (monarch.children ?? [])
                 .sort((a, b) => compareDates(a.birth, b.birth))
                 .map((child) => child)],
             ['opener', monarch ? [monarch] : []]
         ]);
-        loadSimpleMonarchList(monarch?.id, request_graphql_spouses, 'spouses').then(spouses => {
-            baseRelatives.set('spouses', spouses);
-            setDisplayedRelatives(baseRelatives);
-        });
+        const load = async () => {
+            try {
+                const spouses = await fetchMonarchList(monarch.id, 'spouses')
+                baseRelatives.set('spouses', spouses);
+                setDisplayedRelatives(baseRelatives)
+            } catch (err) {
+                console.error("Failed to load throne details", err);
+            }
+        };
+        load();
     }, [monarch]);
 
     useEffect(() => {
-        if (!showAllRelatives) return
+        if (monarch===null || !showAllRelatives) return
         const loaders = [
-            loadSimpleMonarchList(monarch?.id, request_graphql_siblings, 'siblings'),
-            loadSimpleMonarchList(monarch?.id, request_graphql_parent_siblings, 'parent_siblings'),
-            loadSimpleMonarchList(monarch?.id, request_graphql_niblings, 'niblings'),
-            loadSimpleMonarchList(monarch?.id, request_graphql_cousins, 'cousins'),
+            fetchMonarchList(monarch.id, 'siblings'),
+            fetchMonarchList(monarch.id, 'parent_siblings'),
+            fetchMonarchList(monarch.id, 'niblings'),
+            fetchMonarchList(monarch.id, 'cousins'),
         ];
 
         Promise.all(loaders).then(([siblings, parentSiblings, niblings, cousins]) => {
@@ -95,13 +97,13 @@ function FamilyCard() {
                 updated.set('siblings', siblings);
 
             if (Array.isArray(parentSiblings) && parentSiblings.length)
-                updated.set('parent_siblings', parentSiblings);
+                updated.set('parent_siblings', parentSiblings.filter(p=>![monarch.mother?.id, monarch.father?.id].includes(p.id)));
 
             if (Array.isArray(niblings) && niblings.length)
-                updated.set('niblings', niblings);
+                updated.set('niblings', niblings.filter(n=>monarch.children.findIndex(m=>m.id===n.id)===-1));
 
             if (Array.isArray(cousins) && cousins.length)
-                updated.set('cousins', cousins);
+                updated.set('cousins', cousins.filter(c=>siblings.findIndex(s=>s.id===c.id)===-1));
 
             setDisplayedRelatives(updated); // trigger re-render with new map
         });

@@ -1,7 +1,7 @@
 import React from "react";
-import {ContextData, Monarch, ThroneCardData, ThroneDetails} from "./types";
+import {ContextData, Monarch, Throne, ThroneDetails} from "./types";
 
-const thrones: Array<ThroneCardData> = []
+const thrones: Array<Throne> = []
 
 const monarch: Monarch | null = null
 

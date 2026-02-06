@@ -10,7 +10,6 @@ interface NavBarItemProps {
 function NavBarItem({ label, to }: NavBarItemProps) {
   const location = useLocation();
     const active = label==="Main" ? location.pathname==='/' : location.pathname.startsWith(to.substring(0, to.length-1));
-    console.log(location.pathname, label, to, active)
 
     return (
         <Box

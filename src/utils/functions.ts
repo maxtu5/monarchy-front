@@ -1,4 +1,4 @@
-import {ThroneCardData} from "./types";
+import {Throne} from "./types";
 
 export function lifeTime(birth: Date | null, death: Date | null): string {
     if (birth === null) {
@@ -10,7 +10,7 @@ export function lifeTime(birth: Date | null, death: Date | null): string {
 }
 
 export function mergeTwoDates(start: Date | null, end: Date | null): string {
-    // console.log(start, end)
+    // console.log( end)
     const first = start ? start.getFullYear().toString() : 'NA';
     const last = end ? end.getFullYear().toString()
         : (start && start.getFullYear() > 1899
@@ -46,41 +46,3 @@ export function truncateText(text: string, maxLength: number): string {
     return trimmed.substring(0, lastSpace) + '...';
 }
 
-export function handleThroneApiData(data: any): ThroneCardData {
-    return {
-        country: data.country,
-        id: data.uuid,
-        name: data.name,
-        flagUrl: data.flagUrl,
-        years: data.props.years,
-        monarchs: data.reignscount,
-        lastMonarch: {
-            reign: {
-                id: data.props.lastMonarch.reign.uuid,
-                title: data.props.lastMonarch.reign.title,
-                country: data.props.lastMonarch.reign.country,
-                start: data.props.lastMonarch.reign.start,
-                end: data.props.lastMonarch.reign.end,
-                coronation: data.props.lastMonarch.reign.coronation,
-                successor: null,
-                predecessor: null
-            },
-            monarch: {
-                id: data.props.lastMonarch.monarch.uuid,
-                name: data.props.lastMonarch.monarch.name,
-                description: data.props.lastMonarch.monarch.description,
-                birth: data.props.lastMonarch.monarch.birth,
-                death: data.props.lastMonarch.monarch.death,
-                url: data.props.lastMonarch.monarch.url,
-                gender: data.props.lastMonarch.monarch.gender,
-                status: data.props.lastMonarch.monarch.status,
-                imageUrl: data.props.lastMonarch.monarch.imageUrl,
-                imageCaption: data.props.lastMonarch.monarch.imageCaption,
-                reigns: [],
-                father: null,
-                mother: null,
-                children: []
-            }
-        }
-    }
-}

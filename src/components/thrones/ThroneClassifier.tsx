@@ -2,17 +2,16 @@ import React, {useContext, useMemo, useState} from "react";
 import {KingdomContext} from "../../utils/context";
 import {Box, List, ListItemButton, Typography} from "@mui/material";
 import GenericTile from "../shared/GenericTile";
-import {ThroneCardData} from "../../utils/types";
+import {Throne} from "../../utils/types";
 
 const CATEGORY_DEFINITIONS = [
-    { label: "All", filter: (t:ThroneCardData) => true },
-    { label: "Existing", filter: (t:ThroneCardData) => t.years.endsWith('now') },
-    // { label: "Ancient", filter: t => t.status === "ancient" },
-    // { label: "Western Europe", filter: t => t.region === "western-europe" },
-    // { label: "Eastern Europe", filter: t => t.region === "eastern-europe" },
-    // { label: "Germany", filter: t => t.country === "GERMANY" },
-    // { label: "Mediterranean", filter: t => t.region === "mediterranian" },
-    // { label: "Scandinavia", filter: t => t.region === "scandinavia" }
+    { label: "All", filter: (t: Throne) => true },
+    { label: "Existing", filter: (t: Throne) => t.years.endsWith("now") },
+    { label: "Western Europe", filter: (t: Throne) => t.geography.includes("WES") },
+    { label: "Eastern Europe", filter: (t: Throne) => t.geography.includes("EAS") },
+    { label: "Germany", filter: (t: Throne) => t.geography.includes("GER") },
+    { label: "Mediterranean", filter: (t: Throne) => t.geography.includes("MED") },
+    { label: "Scandinavia", filter: (t: Throne) => t.geography.includes("NOR") }
 ];
 
 export function ThroneClassifier() {
@@ -74,7 +73,7 @@ export function ThroneClassifier() {
             >
                 {filteredThrones.map(throne => (
                     <GenericTile
-                        key={throne.id}
+                        key={throne.country}
                         width="32%"
                         displayedThrone={throne}
                     />

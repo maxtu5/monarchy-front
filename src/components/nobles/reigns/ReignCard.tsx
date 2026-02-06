@@ -5,8 +5,9 @@ import {KingdomContext, ModeContext} from "../../../utils/context";
 import {compareDates, lifeTime, mergeTwoDates} from "../../../utils/functions";
 import DisplayName from "../../shared/DisplayName";
 import {GroupedReign, Reign} from "../../../utils/types";
-import {loadMonarch} from "../../../fetchers/fetchers";
 import GenericTile from "../../shared/GenericTile";
+import {fetchMonarch} from "../../../fetchers/fetchersMonarchs";
+import {useNavigate} from "react-router-dom";
 
 function Xseccor(props: { onClick: () => void, displayName: string | undefined, label: string }) {
     return (
@@ -21,14 +22,7 @@ function Xseccor(props: { onClick: () => void, displayName: string | undefined, 
 
 function ReignCard() {
     const {monarch, setMonarch, allThrones} = useContext(KingdomContext)
-
-    async function reloadMonarch(id: string) {
-        if (!monarch || id === '') return;
-        const newMonarch = await loadMonarch(id);
-        if (newMonarch) {
-            setMonarch(newMonarch);
-        }
-    }
+    const navigate = useNavigate();
 
     function groupReigns(reigns: Reign[]): { countries: string[]; reigns: Reign[] }[] {
         const groupedMap: { countries: string[], reigns: Reign[] }[] = []
@@ -74,12 +68,11 @@ function ReignCard() {
                         sx={{color: 'text.secondary'}}>{props.countries.join(', ')}</Typography>
         </Stack>);
     }
-
     function Reigns(props: { reigns: Reign[] }) {
         return (
             <Stack>
                 {props.reigns.map(((reign, index) => (
-                    <span>
+                    <span key={index}>
                     <Typography variant="h6" component="div">
                         {reign.title + ', ' + mergeTwoDates(reign.start, reign.end) + lifeTime(reign.start, reign.end)}<br/>
                     </Typography>
@@ -93,11 +86,13 @@ function ReignCard() {
                                             sx={{color: 'text.secondary'}}>Predecessor</Typography>
                                         <Typography>{`Himself as ${props.reigns[index - 1].title}`}</Typography>
                                     </Stack> :
-                                    <DisplayName monarch={reign.predecessor} type={'Predecessor'}
+                                    <DisplayName monarch={reign.predecessor.monarch} type={'Predecessor'}
                                                  displayCrown={false}/>
                                 }
                                 <Typography variant="body2" component="div">
-                                    {mergeTwoDates(reign.predecessor.reigns[0].start, reign.predecessor.reigns[0].end)}
+                                    {mergeTwoDates(
+                                        reign.predecessor.monarch===null ? null : reign.predecessor.monarch.reigns[0].start,
+                                        reign.predecessor.monarch===null ? null : reign.predecessor.monarch.reigns[0].end)}
                                 </Typography>
                             </Stack>
                         }
@@ -110,11 +105,13 @@ function ReignCard() {
                                             sx={{color: 'text.secondary'}}>Successor</Typography>
                                         <Typography>{`Himself as ${props.reigns[index + 1].title}`}</Typography>
                                     </Stack> :
-                                    <DisplayName monarch={reign.successor} type={'Successor'}
+                                    <DisplayName monarch={reign.successor.monarch} type={'Successor'}
                                                  displayCrown={false}/>
                                 }
                                 <Typography variant="body2" component="div">
-                                    {mergeTwoDates(reign.successor.reigns[0].start, reign.successor.reigns[0].end)}
+                                    {mergeTwoDates(
+                                        reign.successor.monarch===null ? null : reign.successor.monarch.reigns[0].start,
+                                        reign.successor.monarch===null ? null : reign.successor.monarch.reigns[0].end)}
                                 </Typography>
                             </Stack>
                         }
@@ -126,7 +123,7 @@ function ReignCard() {
             </Stack>
         );
     }
-
+// console.log(monarch)
     return (
         <Box sx={{
             // p: 1,
@@ -139,8 +136,8 @@ function ReignCard() {
             // bgcolor: 'background.paper',
         }}>
 
-            {monarch?.reigns && (groupReigns(monarch?.reigns || []).map((reignGroup) =>
-                <GenericTile width={reignGroup.reigns.length > 1 ? '100%' : '100%'}>
+            {monarch?.reigns && (groupReigns(monarch?.reigns || []).map((reignGroup, index) =>
+                <GenericTile key={index} width={reignGroup.reigns.length > 1 ? '100%' : '100%'}>
                     {reignGroup.reigns.length > 1 ? <>
                             <Flags countries={reignGroup.countries}/>
                             <Stack direction={'row'} spacing={2}>
@@ -157,10 +154,10 @@ function ReignCard() {
                                                 label={'Predecessor: ' +
                                                     (monarch?.id === reign.predecessor.id ? 'Himself' : '')
                                                 }
-                                                onClick={() => reloadMonarch(reign.predecessor?.id ?? '')}
+                                                onClick={() => navigate(`/noble/${reign.predecessor?.id}`)}
                                                 displayName={
                                                     monarch?.id === reign.predecessor.id
-                                                        ? undefined : reign.predecessor.name
+                                                        ? undefined : (reign.predecessor.monarch===null? undefined : reign.predecessor.monarch.name)
                                                 }
                                             />
                                         )}
@@ -170,11 +167,11 @@ function ReignCard() {
                                                 label={'Successor: ' +
                                                     (monarch?.id === reign.successor.id ? 'Himself' : '')
                                                 }
-                                                onClick={() => reloadMonarch(reign.successor?.id ?? '')}
+                                                onClick={() => navigate(`/noble/${reign.successor?.id}`)}
                                                 displayName={
                                                     monarch?.id === reign.successor?.id
                                                         ? undefined
-                                                        : reign.successor?.name
+                                                        : (reign.successor.monarch===null? undefined : reign.successor?.monarch.name)
                                                 }
                                             />
                                         )}

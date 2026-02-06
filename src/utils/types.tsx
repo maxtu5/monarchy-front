@@ -1,35 +1,29 @@
-interface ThroneBase {
-    id: string,
+export interface Throne {
     name: string,
     country: string,
     flagUrl: string,
     years: string,
-    monarchs: number
+    monarchs: number,
+    exists: boolean,
+    geography: string,
+    lastMonarch: Monarch | null
 }
 
-export interface ThroneCardData extends ThroneBase {
-    lastMonarch: {
-        reign: Reign,
-        monarch: Monarch
-    },
-}
-
-export interface ThroneDetails extends ThroneBase {
-    restMonarchs: {
-        reign: Reign,
-        monarch: Monarch
-    }[]
+export interface ThroneDetails extends Throne {
+    description: string,
+    reigns: Reign[]
 }
 
 export interface Reign {
     id: string,
     title: string,
     country: string,
+    monarch: Monarch | null,
     start: Date | null,
     end: Date | null,
     coronation: Date | null,
-    predecessor: Monarch | null,
-    successor: Monarch | null
+    predecessor: Reign | null,
+    successor: Reign | null
 }
 
 export interface GroupedReign extends Reign {
@@ -55,7 +49,7 @@ export interface Monarch {
 }
 
 export interface ContextData {
-    allThrones: ThroneCardData[],
+    allThrones: Throne[],
     throne: ThroneDetails | null,
     setThrone: (ThroneDetails: ThroneDetails|null) => void,
     monarch: Monarch | null,

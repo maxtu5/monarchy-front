@@ -1,6 +1,6 @@
 import AllThronesScreen from "../thrones/AllThronesScreen";
 import ThroneScreen from "../thrones/ThroneScreen";
-import MonarchScreen from "../MonarchScreen";
+import MonarchScreen from "../nobles/MonarchScreen";
 import React from "react";
 import {Route, Routes} from "react-router-dom";
 import {MainScreen} from "./MainScreen";
