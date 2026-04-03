@@ -12,7 +12,10 @@ import {Box} from "@mui/material";
 
 export default function AppRouter() {
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", bgcolor: '#bbb', minHeight: "100vh" }}>
+        <Box sx={{ display: "flex",
+            flexDirection: "column",
+            bgcolor: '#bbb',
+            minHeight: "100vh" }}>
             <NavBar />
             <Routes>
                 <Route path="/" element={<MainScreen />} />

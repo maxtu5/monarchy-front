@@ -22,7 +22,7 @@ export function parseMonarch(response: any): Monarch | null {
         birth: response.birth!==null ? new Date(response.birth) : null,
         death: response.death!==null ? new Date(response.death) : null,
         status: response.status ?? null,
-        imageUrl: response.imageUrl ?? null,
+        imageUrl: sanitizeImageUrl(response.imageUrl) ?? '',
         description: response.description ?? null,
         imageCaption: response.imageCaption ?? null,
 
@@ -46,6 +46,13 @@ export function parseMonarch(response: any): Monarch | null {
             ).map((child: any) => parseMonarch(child))
             : []
     };
+}
+
+export function sanitizeImageUrl(imageUrl: string | undefined): string|undefined {
+    console.log(imageUrl)
+    let ret = !imageUrl ? imageUrl : imageUrl.includes('220px') ? imageUrl.replace('220px', '250px') : imageUrl;
+    ret = !ret ? ret : ret.includes('150px') ? ret.replace('150px', '120px') : ret;
+    return ret;
 }
 
 export function parseReign(response: any): Reign | null {

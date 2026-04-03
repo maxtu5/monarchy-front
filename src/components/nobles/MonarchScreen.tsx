@@ -33,13 +33,15 @@ function MonarchScreen() {
     const {id} = useParams();
 
     useEffect(() => {
+        console.log(id)
         if (!id) return
         const load = async () => {
             try {
                 const m = await fetchMonarch(id);
+                console.log(m)
                 setMonarch(m);
             } catch (err) {
-                console.error("Failed to load throne details", err);
+                console.error("Failed to load monarch", err);
             }
         };
         load();
@@ -107,7 +109,7 @@ function MonarchScreen() {
             {/* Right column: 80% width */}
             <Box sx={{ width: '80%', overflowY: 'auto', p: 2 }}>
                 <Typography variant="h5">{monarch?.name || 'Unnamed Monarch'}</Typography>
-                <Typography variant="body2" sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ mt: 2, whiteSpace: "pre-wrap" }}>
                     {monarch?.description === '' ? desc : monarch?.description}
                 </Typography>
                 <Stack spacing={2} sx={{ mt: 2 }}>

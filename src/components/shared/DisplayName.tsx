@@ -27,13 +27,22 @@ const DisplayName = ({
     };
 
     return (<>
-        <Typography variant={'body2'} sx={{color: 'text.secondary'}}>{type}</Typography>
+        <Typography variant={'body2'} sx={{
+            color: 'text.secondary',
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+        }}>{type}</Typography>
         <Stack direction={'row'}>
             <StarOutlineIcon
                 sx={{display: monarch && displayCrown && monarch.reigns?.length > 0 ? 'inline' : 'none'}}
                 onClick={crownOnClick}
             />
-            <Typography variant="body1" component="div">
+            <Typography variant="body1" component="div" sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+            }}>
                 <Link
                     sx={{cursor: 'pointer', textDecoration: 'underline'}}
                     onClick={handleClick}

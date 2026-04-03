@@ -1,13 +1,13 @@
 import React, {useContext} from 'react';
-import {Avatar, Box, Button, Card, CardContent, Link, Stack, Tooltip, Typography} from "@mui/material";
+import {Avatar, Box, Link, Stack, Tooltip, Typography} from "@mui/material";
 
-import {KingdomContext, ModeContext} from "../../../utils/context";
+import {KingdomContext} from "../../../utils/context";
 import {compareDates, lifeTime, mergeTwoDates} from "../../../utils/functions";
 import DisplayName from "../../shared/DisplayName";
 import {GroupedReign, Reign} from "../../../utils/types";
 import GenericTile from "../../shared/GenericTile";
-import {fetchMonarch} from "../../../fetchers/fetchersMonarchs";
 import {useNavigate} from "react-router-dom";
+import {Flags} from "../../shared/Flags";
 
 function Xseccor(props: { onClick: () => void, displayName: string | undefined, label: string }) {
     return (
@@ -21,7 +21,7 @@ function Xseccor(props: { onClick: () => void, displayName: string | undefined, 
 }
 
 function ReignCard() {
-    const {monarch, setMonarch, allThrones} = useContext(KingdomContext)
+    const {monarch, allThrones} = useContext(KingdomContext)
     const navigate = useNavigate();
 
     function groupReigns(reigns: Reign[]): { countries: string[]; reigns: Reign[] }[] {
@@ -56,18 +56,6 @@ function ReignCard() {
         return groupedMap;
     }
 
-    function Flags(props: { countries: string[] }) {
-        return (<Stack direction={'row'} spacing={1}>{props.countries.map(country => (
-            <Tooltip key={country} title={country}>
-                <Avatar sx={{width: 24, height: 24}}
-                        src={allThrones.find(t => t.country === country)?.flagUrl}/>
-            </Tooltip>
-
-        ))}
-            <Typography variant={'body2'}
-                        sx={{color: 'text.secondary'}}>{props.countries.join(', ')}</Typography>
-        </Stack>);
-    }
     function Reigns(props: { reigns: Reign[] }) {
         return (
             <Stack>
@@ -142,7 +130,8 @@ function ReignCard() {
                             <Flags countries={reignGroup.countries}/>
                             <Stack direction={'row'} spacing={2}>
                                 {reignGroup.reigns.map((reign, index) =>
-                                    <Stack>
+                                    <Stack key={index}>
+
                                         <Typography variant="body2" component="div">
                                             {reign.title}
                                         </Typography>

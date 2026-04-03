@@ -5,25 +5,17 @@ import {buildRequest, parseMonarch, parseReign} from "./fetchersUtils";
 export async function fetchAllThrones(): Promise<Throne[]> {
     const query = `{ 
     thrones {
-        name
-        country
-        flagUrl
-        geography
+        name country flagUrl geography
         latestReign {
-        uuid
-            end
+        uuid end
             monarch {
-                uuid
-                name
-                death
-                imageUrl
+                uuid name death imageUrl
             }
         }
         reigns {
             start
         }
-    }
-    }`
+    }}`
     const request = buildRequest(query);
     const response = await fetch(`${base_url}${path_graphql_query}`, request)
     if (!response.ok) {
@@ -52,38 +44,23 @@ function parseAllThrones(response: any): Throne[] {
 export async function fetchThroneDetails(country: string): Promise<ThroneDetails> {
     const query = `
     { throne(country:"_COUNTRY_") {
-            name
-            country
-            flagUrl
-            geography
-            description
+            name country flagUrl geography description
             latestReign {
-                start
-                end
+                start end
                 monarch {
-                    uuid
-                    name
+                    uuid name
                 }
             }
             reigns {
-                    uuid
-                    title
-                    start
-                    end
+                uuid title start end
                 monarch {
-                    uuid
-                    name
-                    birth
-                    death
-                    imageUrl
-                    reigns {
+                    uuid name birth death imageUrl reigns {
                         country
                     }
                 }
             }
         }
-        }
-    `.replace("_COUNTRY_", country.toUpperCase());
+    }`.replace("_COUNTRY_", country.toUpperCase());
     const request = buildRequest(query);
     const response = await fetch(`${base_url}${path_graphql_query}`, request)
     if (!response.ok) {
@@ -106,7 +83,9 @@ function parseThroneDetails(response: any): ThroneDetails {
         monarchs: throne.reigns.length,
         geography: throne.geography,
         description: throne.description,
-        reigns: throne.reigns.map((reign: any) => parseReign(reign))
+        reigns: throne.reigns
+            .map((reign: any) => parseReign(reign))
+            .sort((r1: Reign, r2: Reign) => r1.start===null || r2.start===null ? 0 : (r1.start > r2?.start ? -1 : 1))
     }
     // console.log(retval)
     return retval

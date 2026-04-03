@@ -65,7 +65,7 @@ function NavBar() {
                             style={{width: 40, height: 40, cursor: "pointer"}}
                         />
                     </Link>
-                    <Typography variant="h6">THE ROYAL MONARCHY</Typography>
+                    <Typography variant="h6">- THE ROYAL MONARCHY -</Typography>
                 </Box>
 
                 <Box sx={{display: 'flex', gap: 3,

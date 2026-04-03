@@ -4,9 +4,8 @@ import {
     path_graphql_query,
     request_find_monarchs_byname,
     request_find_monarchs_byyear,
-    request_graphql_sametimers,
 } from "../utils/constants";
-import {buildRequest, parseMonarch} from "./fetchersUtils";
+import {buildRequest, parseMonarch, sanitizeImageUrl} from "./fetchersUtils";
 
 export async function fetchMonarch(id: string): Promise<Monarch|null> {
     const query = `{ 
@@ -270,22 +269,6 @@ export async function fetchSameTimers(from: string, to: string, skip = 0, limit 
     return json.data.monarchs.map((m: any)=>extractMonarch(m, false))
 }
 
-export async function loadSameTimers(from: Date, to: Date): Promise<Monarch[]> {
-    const request = buildRequest(request_graphql_sametimers
-        .replace('_FROM_', `${from.toISOString().slice(0,10)}`)
-        .replace('_TO_', `${to.toISOString().slice(0,10)}`))
-
-    const retval = await fetch(`${base_url}${path_graphql_query}`, request)
-        .then(response => {
-            return response.json();
-        })
-        .then(data => {
-            return data.data.sametimerulers.map((m: any)=>extractMonarch(m, false))
-        })
-    return retval;
-}
-
-
 export function findMonarchsByName(searchString: string) {
     return fetchMonarchs(request_find_monarchs_byname, searchString, 'findmonarchs');
 }
@@ -345,6 +328,7 @@ function createReign(r: any, withDetails: boolean): Reign {
     };
 }
 
+
 // @ts-ignore
 function extractMonarch(data, withDetails: boolean): Monarch {
     const reigns: Reign[] = []
@@ -365,7 +349,7 @@ function extractMonarch(data, withDetails: boolean): Monarch {
         birth: data.birth === null ? null : new Date(data.birth),
         death: data.death === null ? null : new Date(data.death),
         status: data.status,
-        imageUrl: data.imageUrl,
+        imageUrl: data.imageUrl ? sanitizeImageUrl(data.imageUrl) : data.imageUrl,
         imageCaption: data.imageCaption,
         reigns: reigns,
         father: null,

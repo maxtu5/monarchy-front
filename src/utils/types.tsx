@@ -11,7 +11,8 @@ export interface Throne {
 
 export interface ThroneDetails extends Throne {
     description: string,
-    reigns: Reign[]
+    reigns: Reign[],
+    connectedThrones?: Map<string, string[]>
 }
 
 export interface Reign {

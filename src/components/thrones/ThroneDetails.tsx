@@ -2,14 +2,31 @@ import React, {useContext, useEffect, useState} from "react";
 import {KingdomContext} from "../../utils/context";
 import {Box, Stack, Typography} from "@mui/material";
 import DisplayName from "../shared/DisplayName";
+import {Flags} from "../shared/Flags";
 
 export function ThroneDetails() {
-    const {throne} = useContext(KingdomContext);
-    const [connectedThrones, setConnectedThrones] = useState<string[]>([]);
+    const {throne, setThrone} = useContext(KingdomContext);
 
     useEffect(() => {
-        if (!throne) return;
-        // fetchConnectedThrones(throne.id).then((a:)=>setConnectedThrones)
+        if (!throne || throne.connectedThrones) return;
+        const connections = new Map<string, string[]>();
+
+        for (const r of throne.reigns) {
+            const monarch = r.monarch;
+            if (!monarch) continue;
+
+            for (const rr of monarch.reigns) {
+                if (rr.country === throne.country) continue;
+
+                const list = connections.get(rr.country);
+                if (list) {
+                    list.push(monarch.id);
+                } else {
+                    connections.set(rr.country, [monarch.id]);
+                }
+            }
+        }
+        setThrone({...throne, connectedThrones: connections})
     }, [throne]);
 
     return (
@@ -42,11 +59,11 @@ export function ThroneDetails() {
             <Typography variant="h6" color="text.secondary">
                 Throne connections
             </Typography>
-            {/*{allThrones*/}
-            {/*    .filter(t => connectedThrones.includes(t.country))*/}
-            {/*    .map(th => (null*/}
-            {/*        // <ThroneRow image={th.flagUrl} name={th.name}/>*/}
-            {/*    ))}*/}
+            <Stack spacing={1}>
+            {Array.from(throne?.connectedThrones?.keys() || []).map(t => (
+                <Flags key={t} countries={[t]}/>
+            ))}
+            </Stack>
         </Box>
     );
 }
