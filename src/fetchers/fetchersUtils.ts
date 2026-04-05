@@ -51,7 +51,9 @@ export function parseMonarch(response: any): Monarch | null {
 export function sanitizeImageUrl(imageUrl: string | undefined): string|undefined {
     console.log(imageUrl)
     let ret = !imageUrl ? imageUrl : imageUrl.includes('220px') ? imageUrl.replace('220px', '250px') : imageUrl;
+    ret = !ret ? ret : ret.includes('230px') ? ret.replace('230px', '250px') : ret;
     ret = !ret ? ret : ret.includes('150px') ? ret.replace('150px', '120px') : ret;
+
     return ret;
 }
 

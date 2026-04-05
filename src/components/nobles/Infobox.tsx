@@ -2,15 +2,17 @@ import React, {useContext, useEffect, useState} from 'react';
 import {Box, Card, CardContent, CardMedia, Link, Stack, Typography} from "@mui/material";
 import {KingdomContext} from "../../utils/context";
 import {lifeTime} from "../../utils/functions";
+import {useDetectScreen} from "../../utils/useDetectScreen";
 
 
 function Infobox() {
     const {monarch} = useContext(KingdomContext)
+    const screen = useDetectScreen();
 
     return (
-        <Card variant="outlined">
+        <Card  variant="outlined">
             <CardContent>
-                <Stack spacing={1}>
+                <Stack spacing={1} direction={screen === 'mobile_vertical' ? 'row' : 'column'}>
                     <Stack>
                         <CardMedia
                             component="img"

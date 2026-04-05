@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Box, IconButton, Stack, Typography} from "@mui/material";
+import {Box, CircularProgress, IconButton, Stack, Typography} from "@mui/material";
 import Infobox from "./Infobox";
 import FamilyCard from "./family/FamilyCard";
 import ReignCard from "./reigns/ReignCard";
@@ -12,6 +12,7 @@ import {Reign} from "../../utils/types";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useParams} from "react-router-dom";
 import {fetchMonarch} from "../../fetchers/fetchersMonarchs";
+import {useDetectScreen} from "../../utils/useDetectScreen";
 
 function calcDateSpan(reigns: Reign[] | undefined): Date[] {
     const retval: (Date | null)[] = [null, null];
@@ -31,6 +32,7 @@ function MonarchScreen() {
     const [showSameTimers, setShowSameTimers] = useState(false)
     const [reignSpan, setReignSpan] = useState<Date[]>([])
     const {id} = useParams();
+    const screen = useDetectScreen();
 
     useEffect(() => {
         console.log(id)
@@ -60,18 +62,18 @@ function MonarchScreen() {
             }
         }
 
-        // fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
-        //     .then(response => {
-        //         return response.text();
-        //     })
-        //     .then(data => {
-        //         setDesc(data)
-        //     })
+        fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                setDesc(data)
+            })
     }, [monarch])
 
     function StyledOpener(props: { onClick: () => void, label: string }) {
         return (
-            <Box display="flex" justifyContent="space-between" alignItems="center" m={2}
+            <Box display="flex" justifyContent="space-between" alignItems="center"
                  sx={{flex: 1, minWidth: '120px', p:1,
                      border: '1px solid lightgray',
                  }}
@@ -92,29 +94,47 @@ function MonarchScreen() {
         );
     }
 
-    return (
-        <Box sx={{ display: 'flex' }}>
-            {/* Left column: 20% width */}
-            <Box sx={{ width: '20%', pl: 1, pt:1 }}>
-                <Stack spacing={2}>
-                    <Infobox />
-                    <StyledOpener
+    return (!monarch ? <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '80vh',
+        width: '100%'
+    }}>
+        <CircularProgress />
+    </Box>
+:
+    <Box sx={{
+        display: 'flex',
+        flexDirection: screen === 'mobile_vertical' ? 'column' : 'row'
+    }}>
+        {/* Left column: 20% width */}
+        <Box sx={{display: screen === 'mobile_vertical' ? 'none' : 'block', width: '20%',  mx: 1, mt: 1}}>
+            <Stack spacing={2}>
+                <Infobox />
+                <StyledOpener
                         onClick={() => setShowSameTimers(!showSameTimers)}
                         label={`Monarchs of the time`}
-                    />
-                    {showSameTimers && <SameTimeRulers span={reignSpan} />}
-                </Stack>
-            </Box>
+                />
+                {showSameTimers && <SameTimeRulers span={reignSpan} />}
+            </Stack>
+        </Box>
 
             {/* Right column: 80% width */}
-            <Box sx={{ width: '80%', overflowY: 'auto', p: 2 }}>
+            <Box sx={{ width: 'mobile_vertical' ? 'auto' : '80%', mx: 1, overflowY: 'auto' , mt: 1}}>
                 <Typography variant="h5">{monarch?.name || 'Unnamed Monarch'}</Typography>
-                <Typography variant="body2" sx={{ mt: 2, whiteSpace: "pre-wrap" }}>
+                <Typography variant="body2" sx={{ my: 2, whiteSpace: "pre-wrap" }}>
                     {monarch?.description === '' ? desc : monarch?.description}
                 </Typography>
-                <Stack spacing={2} sx={{ mt: 2 }}>
+                <Stack spacing={2}>
+                    {screen === 'mobile_vertical' && <Infobox/>}
                     <ReignCard />
                     <FamilyCard />
+                    {screen === 'mobile_vertical' && <StyledOpener
+                        onClick={() => setShowSameTimers(!showSameTimers)}
+                        label={`Monarchs of the time`}
+                    />}
+                    {screen === 'mobile_vertical' && showSameTimers && <SameTimeRulers span={reignSpan} />}
                 </Stack>
             </Box>
         </Box>

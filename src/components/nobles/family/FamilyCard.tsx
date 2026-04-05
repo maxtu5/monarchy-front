@@ -8,6 +8,7 @@ import {fetchMonarchList} from "../../../fetchers/fetchersMonarchs";
 import OpenerTile from "./OpenerTile";
 import DisplayName from "../../shared/DisplayName";
 import GenericTile from "../../shared/GenericTile";
+import {useDetectScreen} from "../../../utils/useDetectScreen";
 
 type Gender = 'MALE' | 'FEMALE';
 type Relation =
@@ -108,6 +109,7 @@ function FamilyCard() {
             setDisplayedRelatives(updated); // trigger re-render with new map
         });
     }, [showAllRelatives]);
+    const screen = useDetectScreen();
 
     // console.log(displayedRelatives)
 
@@ -115,6 +117,8 @@ function FamilyCard() {
         // p: 1,
         // borderRadius: 2,
         // border: '1px solid lightgray',
+        flex: 1,
+        width: 'auto',
         display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -137,7 +141,7 @@ function FamilyCard() {
                                 <GenericTile
                                     key={monarch.id}
                                     displayedMonarch={monarch}
-                                    width={'32.6%'}
+                                    width={screen === 'mobile_vertical' ? '48%' : '32.7%'}
                                 >
                                     <DisplayName
                                         monarch={monarch}

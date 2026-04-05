@@ -1,6 +1,7 @@
 import React from 'react';
 import {AppBar, Box, Toolbar, Typography} from "@mui/material";
 import {Link, useLocation} from "react-router-dom";
+import {useDetectScreen} from "../../utils/useDetectScreen";
 
 interface NavBarItemProps {
     label: string;
@@ -9,7 +10,8 @@ interface NavBarItemProps {
 
 function NavBarItem({ label, to }: NavBarItemProps) {
   const location = useLocation();
-    const active = label==="Main" ? location.pathname==='/' : location.pathname.startsWith(to.substring(0, to.length-1));
+
+  const active = label==="Main" ? location.pathname==='/' : location.pathname.startsWith(to.substring(0, to.length-1));
 
     return (
         <Box
@@ -53,6 +55,8 @@ function NavBarItem({ label, to }: NavBarItemProps) {
 }
 
 function NavBar() {
+    const screen = useDetectScreen();
+
     return (
         <AppBar position="relative" sx={{backgroundColor: "#888"}}>
             <Toolbar sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'stretch'}}>
@@ -65,10 +69,10 @@ function NavBar() {
                             style={{width: 40, height: 40, cursor: "pointer"}}
                         />
                     </Link>
-                    <Typography variant="h6">- THE ROYAL MONARCHY -</Typography>
+                    {screen === 'desktop' && <Typography variant="h6">- THE ROYAL MONARCHY -</Typography>}
                 </Box>
 
-                <Box sx={{display: 'flex', gap: 3,
+                <Box sx={{display: 'flex', gap: screen === 'desktop' ? 3 : 0,
                     alignItems: 'flex-end'}}>
                     <NavBarItem label={'Main'} to="/"/>
                     <NavBarItem label={'Thrones'} to="/thrones"/>
