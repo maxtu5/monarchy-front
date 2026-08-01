@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Box, CircularProgress, IconButton, Stack, Typography} from "@mui/material";
+import {Box, IconButton, Stack, Typography} from "@mui/material";
 import Infobox from "./Infobox";
 import FamilyCard from "./family/FamilyCard";
 import ReignCard from "./reigns/ReignCard";
@@ -13,6 +13,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useParams} from "react-router-dom";
 import {fetchMonarch} from "../../fetchers/fetchersMonarchs";
 import {useDetectScreen} from "../../utils/useDetectScreen";
+import {LoadingScreen} from "../shared/LoadingScreen";
 
 function calcDateSpan(reigns: Reign[] | undefined): Date[] {
     const retval: (Date | null)[] = [null, null];
@@ -35,12 +36,10 @@ function MonarchScreen() {
     const screen = useDetectScreen();
 
     useEffect(() => {
-        console.log(id)
         if (!id) return
         const load = async () => {
             try {
                 const m = await fetchMonarch(id);
-                console.log(m)
                 setMonarch(m);
             } catch (err) {
                 console.error("Failed to load monarch", err);
@@ -54,7 +53,9 @@ function MonarchScreen() {
         setShowSameTimers(false)
         setDesc("")
         setReignSpan(calcDateSpan(monarch?.reigns))
-        if (monarch?.description) return
+
+        if (!monarch?.id || monarch?.description) return
+
         const request = {
             method: 'GET',
             headers: {
@@ -64,11 +65,20 @@ function MonarchScreen() {
 
         fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
             .then(response => {
+                // Check if the response status is 200-299
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
                 return response.text();
             })
             .then(data => {
                 setDesc(data)
             })
+            .catch(error => {
+                console.warn("Failed to fetch monarch description:", error.message);
+                // Fallback: clear description if the fetch failed or server was offline
+                setDesc("");
+            });
     }, [monarch])
 
     function StyledOpener(props: { onClick: () => void, label: string }) {
@@ -94,16 +104,9 @@ function MonarchScreen() {
         );
     }
 
-    return (!monarch ? <Box sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '80vh',
-        width: '100%'
-    }}>
-        <CircularProgress />
-    </Box>
-:
+    if (!monarch) return <LoadingScreen />;
+
+    return (
     <Box sx={{
         display: 'flex',
         flexDirection: screen === 'mobile_vertical' ? 'column' : 'row'

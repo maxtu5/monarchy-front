@@ -7,6 +7,7 @@ import {useParams} from "react-router-dom";
 import {ScrollContainer, ScrollItem} from "../shared/ScrollContainer";
 import {ThroneDetails} from "./ThroneDetails";
 import {fetchThroneDetails} from "../../fetchers/fetchersThrones";
+import {LoadingScreen} from "../shared/LoadingScreen";
 
 function Header() {
     const {throne} = useContext(KingdomContext);
@@ -38,7 +39,7 @@ function Header() {
                 sx={{
                     display: "grid",
                     bgcolor: "#ddd",
-                    gridTemplateColumns: "25% 1fr",
+                    gridTemplateColumns: "30% 1fr",
                     columnGap: 2,
                     alignItems: "start",
                     p: 1
@@ -87,7 +88,7 @@ function MonarchSelector() {
 }
 
 function ThroneScreen() {
-    const {allThrones, setThrone} = useContext(KingdomContext)
+    const {throne, setThrone} = useContext(KingdomContext)
     const {country} = useParams();
 
     useEffect(() => {
@@ -105,6 +106,8 @@ function ThroneScreen() {
         load();
         return () => setThrone(null)
     }, [country]);
+
+    if (!throne) return <LoadingScreen />;
 
     return (
         <>

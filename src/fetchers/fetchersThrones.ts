@@ -1,6 +1,6 @@
 import {Monarch, Reign, Throne, ThroneDetails} from "../utils/types";
 import {base_url, path_graphql_query} from "../utils/constants";
-import {buildRequest, parseMonarch, parseReign} from "./fetchersUtils";
+import {buildRequest, parseMonarch, parseReign, sanitizeImageUrl} from "./fetchersUtils";
 
 export async function fetchAllThrones(): Promise<Throne[]> {
     const query = `{ 
@@ -31,7 +31,7 @@ function parseAllThrones(response: any): Throne[] {
         return {
             name: throneData.name,
             country: throneData.country,
-            flagUrl: throneData.flagUrl,
+            flagUrl: throneData.flagUrl ? sanitizeImageUrl(throneData.flagUrl) : throneData.flagUrl,
             years: buildYears(throneData.reigns, throneData.latestReign),
             exists: throneData.latestReign.end === null,
             monarchs: throneData.reigns.length,
@@ -76,7 +76,7 @@ function parseThroneDetails(response: any): ThroneDetails {
     const retval = {
         name: throne.name,
         country: throne.country,
-        flagUrl: throne.flagUrl,
+        flagUrl: throne.flagUrl ? sanitizeImageUrl(throne.flagUrl) : throne.flagUrl,
         years: buildYears(throne.reigns, throne.latestReign),
         lastMonarch: parseMonarch(throne.latestReign.monarch),
         exists: throne.latestReign.end === null,

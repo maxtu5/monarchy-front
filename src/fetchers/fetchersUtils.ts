@@ -49,10 +49,17 @@ export function parseMonarch(response: any): Monarch | null {
 }
 
 export function sanitizeImageUrl(imageUrl: string | undefined): string|undefined {
-    console.log(imageUrl)
+    // console.log(imageUrl)
     let ret = !imageUrl ? imageUrl : imageUrl.includes('220px') ? imageUrl.replace('220px', '250px') : imageUrl;
     ret = !ret ? ret : ret.includes('230px') ? ret.replace('230px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('200px') ? ret.replace('200px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('240px') ? ret.replace('240px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('210px') ? ret.replace('210px', '250px') : ret;
     ret = !ret ? ret : ret.includes('150px') ? ret.replace('150px', '120px') : ret;
+    ret = !ret ? ret : ret.includes('2560px') ? ret.replace('2560px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('1024px') ? ret.replace('1024px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('1250px') ? ret.replace('1250px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('640px') ? ret.replace('640px', '250px') : ret;
 
     return ret;
 }

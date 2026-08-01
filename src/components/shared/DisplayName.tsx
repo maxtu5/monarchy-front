@@ -44,7 +44,7 @@ const DisplayName = ({
                 textOverflow: "ellipsis",
             }}>
                 <Link
-                    sx={{cursor: 'pointer', textDecoration: 'underline'}}
+                    sx={{cursor: 'pointer', textDecoration: 'underline', textOverflow: 'ellipsis'}}
                     onClick={handleClick}
                 >
                     {monarch?.name}

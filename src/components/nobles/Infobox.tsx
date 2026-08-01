@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext} from 'react';
 import {Box, Card, CardContent, CardMedia, Link, Stack, Typography} from "@mui/material";
 import {KingdomContext} from "../../utils/context";
 import {lifeTime} from "../../utils/functions";
@@ -10,7 +10,7 @@ function Infobox() {
     const screen = useDetectScreen();
 
     return (
-        <Card  variant="outlined">
+        <Card variant="outlined">
             <CardContent>
                 <Stack spacing={1} direction={screen === 'mobile_vertical' ? 'row' : 'column'}>
                     <Stack>
@@ -39,7 +39,7 @@ function Infobox() {
                                 })}
                         </Typography>
                         <Typography variant="body2" component="div" marginBottom={1}>
-                            <strong>Death:</strong>{' '}
+                            <strong>{monarch?.death === null && monarch.birth !== null && monarch.birth.getFullYear() > 1900 ? '' : 'Death:'}</strong>{' '}
                             {monarch?.death === null ?
                                 (monarch.birth !== null && monarch.birth.getFullYear() > 1899 ?
                                     lifeTime(monarch.birth, monarch === null ? null : monarch?.death) :
