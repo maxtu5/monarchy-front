@@ -46,7 +46,7 @@ function MonarchScreen() {
             }
         };
         load();
-        return ()=>setMonarch(null);
+        return () => setMonarch(null);
     }, [id]);
 
     useEffect(() => {
@@ -83,10 +83,10 @@ function MonarchScreen() {
 
     function StyledOpener(props: { onClick: () => void, label: string }) {
         return (
-            <Box display="flex" justifyContent="space-between" alignItems="center"
-                 sx={{flex: 1, minWidth: '120px', p:1,
-                     border: '1px solid lightgray',
-                 }}
+            <Box sx={{
+                display: 'flex', flex: 1, justifyContent: "space-between", alignItems: "center",
+                minWidth: '120px', p: 1, border: '1px solid lightgray',
+            }}
             >
                 <Typography noWrap>{props.label}</Typography>
                 <IconButton
@@ -94,9 +94,9 @@ function MonarchScreen() {
                     onClick={props.onClick}
                 >
                     {showSameTimers ? (
-                        <KeyboardArrowDownIcon fontSize="small" />
+                        <KeyboardArrowDownIcon fontSize="small"/>
                     ) : (
-                        <ArrowForwardIosIcon fontSize="small" />
+                        <ArrowForwardIosIcon fontSize="small"/>
                     )}
 
                 </IconButton>
@@ -104,40 +104,40 @@ function MonarchScreen() {
         );
     }
 
-    if (!monarch) return <LoadingScreen />;
+    if (!monarch) return <LoadingScreen/>;
 
     return (
-    <Box sx={{
-        display: 'flex',
-        flexDirection: screen === 'mobile_vertical' ? 'column' : 'row'
-    }}>
-        {/* Left column: 20% width */}
-        <Box sx={{display: screen === 'mobile_vertical' ? 'none' : 'block', width: '20%',  mx: 1, mt: 1}}>
-            <Stack spacing={2}>
-                <Infobox />
-                <StyledOpener
+        <Box sx={{
+            display: 'flex',
+            flexDirection: screen === 'mobile_vertical' ? 'column' : 'row'
+        }}>
+            {/* Left column: 20% width */}
+            <Box sx={{display: screen === 'mobile_vertical' ? 'none' : 'block', width: '20%', mx: 1, mt: 1}}>
+                <Stack spacing={2}>
+                    <Infobox/>
+                    <StyledOpener
                         onClick={() => setShowSameTimers(!showSameTimers)}
                         label={`Monarchs of the time`}
-                />
-                {showSameTimers && <SameTimeRulers span={reignSpan} />}
-            </Stack>
-        </Box>
+                    />
+                    {showSameTimers && <SameTimeRulers span={reignSpan}/>}
+                </Stack>
+            </Box>
 
             {/* Right column: 80% width */}
-            <Box sx={{ width: 'mobile_vertical' ? 'auto' : '80%', mx: 1, overflowY: 'auto' , mt: 1}}>
+            <Box sx={{width: screen === 'mobile_vertical' ? 'auto' : '80%', mx: 1, overflowY: 'auto', mt: 1}}>
                 <Typography variant="h5">{monarch?.name || 'Unnamed Monarch'}</Typography>
-                <Typography variant="body2" sx={{ my: 2, whiteSpace: "pre-wrap" }}>
+                <Typography variant="body2" sx={{my: 2, whiteSpace: "pre-wrap"}}>
                     {monarch?.description === '' ? desc : monarch?.description}
                 </Typography>
                 <Stack spacing={2}>
                     {screen === 'mobile_vertical' && <Infobox/>}
-                    <ReignCard />
-                    <FamilyCard />
+                    <ReignCard/>
+                    <FamilyCard/>
                     {screen === 'mobile_vertical' && <StyledOpener
                         onClick={() => setShowSameTimers(!showSameTimers)}
                         label={`Monarchs of the time`}
                     />}
-                    {screen === 'mobile_vertical' && showSameTimers && <SameTimeRulers span={reignSpan} />}
+                    {screen === 'mobile_vertical' && showSameTimers && <SameTimeRulers span={reignSpan}/>}
                 </Stack>
             </Box>
         </Box>

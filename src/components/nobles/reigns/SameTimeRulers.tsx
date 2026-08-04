@@ -1,8 +1,8 @@
-import {Monarch, Reign} from "../../../utils/types";
+import {Monarch} from "../../../utils/types";
 import React, {useContext, useEffect, useState} from "react";
 import {KingdomContext} from "../../../utils/context";
 import {fetchSameTimers} from "../../../fetchers/fetchersMonarchs";
-import {Avatar, Box, Card, CardContent, Divider, Link, Stack, Tooltip, Typography} from "@mui/material";
+import {Box} from "@mui/material";
 import DisplayName from "../../shared/DisplayName";
 import GenericTile from "../../shared/GenericTile";
 
@@ -50,6 +50,7 @@ export function SameTimeRulers(props: { span: Date[] }) {
 
                 {sameTimers.map(monarch=>
                         <GenericTile
+                            key={monarch.id}
                             width={'100%'}
                             displayedMonarch={monarch}
                         >

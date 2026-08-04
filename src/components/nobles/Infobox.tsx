@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Box, Card, CardContent, CardMedia, Link, Stack, Typography} from "@mui/material";
+import {Card, CardContent, CardMedia, Link, Stack, Typography} from "@mui/material";
 import {KingdomContext} from "../../utils/context";
 import {lifeTime} from "../../utils/functions";
 import {useDetectScreen} from "../../utils/useDetectScreen";
@@ -28,7 +28,7 @@ function Infobox() {
 
                     <Stack>
 
-                        <Typography variant="body2" component="div" marginBottom={1}>
+                        <Typography variant="body2" component="div" sx={{marginBottom:1}}>
                             <strong>Birth:</strong>{' '}
                             {monarch === null || monarch?.birth === null
                                 ? 'NA'
@@ -38,7 +38,7 @@ function Infobox() {
                                     year: 'numeric',
                                 })}
                         </Typography>
-                        <Typography variant="body2" component="div" marginBottom={1}>
+                        <Typography variant="body2" component="div" sx={{marginBottom:1}}>
                             <strong>{monarch?.death === null && monarch.birth !== null && monarch.birth.getFullYear() > 1900 ? '' : 'Death:'}</strong>{' '}
                             {monarch?.death === null ?
                                 (monarch.birth !== null && monarch.birth.getFullYear() > 1899 ?

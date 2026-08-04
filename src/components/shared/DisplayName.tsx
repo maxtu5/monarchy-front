@@ -1,6 +1,6 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Monarch} from "../../utils/types";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import StarOutlineIcon from "@mui/icons-material/StarOutlineOutlined";
 import {Link, Stack, Typography} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 

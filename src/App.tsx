@@ -1,7 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import './App.css';
-import {Box} from "@mui/material";
-import NavBar from "./components/main/NavBar";
 import {KingdomContext, ModeContext} from "./utils/context";
 import {Monarch, Throne, ThroneDetails} from "./utils/types";
 import AppRouter from "./components/main/AppRouter";

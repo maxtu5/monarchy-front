@@ -85,7 +85,7 @@ export function ScrollContainer(props: { children: ReactNode, stripesMap?: Map<s
 
                 <Box sx={{display: "flex", gap: 2}}>
                     {items.map((i, idx) => (
-                        <Box sx={{display: "flex", flexDirection: "column", gap: 1}}>
+                        <Box key={idx} sx={{display: "flex", flexDirection: "column", gap: 1}}>
 
                             {/* Tiles row */}
                             <Box sx={{display: "flex", gap: 2}}>

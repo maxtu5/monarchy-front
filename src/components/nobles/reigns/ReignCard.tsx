@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Avatar, Box, Link, Stack, Tooltip, Typography} from "@mui/material";
+import {Box, Link, Stack, Typography} from "@mui/material";
 
 import {KingdomContext} from "../../../utils/context";
 import {compareDates, lifeTime, mergeTwoDates} from "../../../utils/functions";
@@ -21,7 +21,7 @@ function Xseccor(props: { onClick: () => void, displayName: string | undefined, 
 }
 
 function ReignCard() {
-    const {monarch, allThrones} = useContext(KingdomContext)
+    const {monarch} = useContext(KingdomContext)
     const navigate = useNavigate();
 
     function groupReigns(reigns: Reign[]): { countries: string[]; reigns: Reign[] }[] {

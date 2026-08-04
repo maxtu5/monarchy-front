@@ -30,7 +30,7 @@ export function ThroneDetails() {
     }, [throne]);
 
     return (
-        <Box display={'flex'} flexDirection={'column'}>
+        <Box sx={{display: 'flex', flexDirection:'column'}}>
             <Typography variant="h6" color="text.secondary">
                 Historical era
             </Typography>
@@ -41,14 +41,14 @@ export function ThroneDetails() {
             <Typography variant="h6" color="text.secondary">
                 Rulers ({throne?.reigns.length})
             </Typography>
-            <Stack direction="row" spacing={2} alignItems={'baseline'}>
+            <Stack direction="row" spacing={2} sx={{alignItems: 'baseline'}}>
                 <DisplayName
                     monarch={throne===null ? null : throne.lastMonarch}
                     type="Last"
                     displayCrown={false}
                 />
             </Stack>
-            <Stack direction="row" spacing={2} alignItems={'baseline'}>
+            <Stack direction="row" spacing={2} sx={{alignItems: 'baseline'}}>
                 <DisplayName
                     monarch={throne?.reigns[throne?.reigns.length - 1].monarch || null}
                     type="First"
