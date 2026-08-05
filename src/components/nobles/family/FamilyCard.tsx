@@ -4,11 +4,9 @@ import {KingdomContext} from "../../../utils/context";
 import {compareDates} from "../../../utils/functions";
 import {Monarch} from "../../../utils/types";
 import {fetchMonarchList} from "../../../fetchers/fetchersMonarchs";
-
 import OpenerTile from "./OpenerTile";
 import DisplayName from "../../shared/DisplayName";
 import GenericTile from "../../shared/GenericTile";
-import {useDetectScreen} from "../../../utils/useDetectScreen";
 
 type Gender = 'MALE' | 'FEMALE';
 type Relation =
@@ -109,22 +107,18 @@ function FamilyCard() {
             setDisplayedRelatives(updated); // trigger re-render with new map
         });
     }, [showAllRelatives]);
-    const screen = useDetectScreen();
-
-    // console.log(displayedRelatives)
 
     return (<Box sx={{
-        // p: 1,
-        // borderRadius: 2,
-        // border: '1px solid lightgray',
+        pb: 1,
         flex: 1,
         width: 'auto',
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
         gap: 1.2,
-        // bgcolor: 'background.paper',
-        // justifyContent:"flex-start"
+        margin: "0 auto",
+        display: "grid",
+        gridTemplateColumns: {
+            xs: "repeat(1, 1fr)",                       // mobile: 1 tile per row
+            md: "repeat(auto-fit, minmax(250px, 1fr))"  // desktop: 3–4 tiles automatically
+        }
     }}>
 
         {Array.from(displayedRelatives.entries())
@@ -141,7 +135,6 @@ function FamilyCard() {
                                 <GenericTile
                                     key={monarch.id}
                                     displayedMonarch={monarch}
-                                    width={screen === 'mobile_vertical' ? '48%' : '32.7%'}
                                 >
                                     <DisplayName
                                         monarch={monarch}

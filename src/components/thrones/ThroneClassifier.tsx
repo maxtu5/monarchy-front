@@ -66,9 +66,13 @@ export function ThroneClassifier() {
                     width: "80%",
                     p: 2,
                     boxSizing: "border-box",
-                    display: "flex",
+                    display: "grid",
                     flexWrap: "wrap",
-                    gap: 2
+                    gap: 2,
+                    gridTemplateColumns: {
+                        xs: "repeat(1, 1fr)",                       // mobile: 1 tile per row
+                        md: "repeat(auto-fit, minmax(250px, 1fr))"  // desktop: 3–4 tiles automatically
+                    }
                 }}
             >
                 {filteredThrones.map(throne => (

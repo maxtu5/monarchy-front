@@ -93,7 +93,6 @@ function ThroneScreen() {
 
     useEffect(() => {
         if (!country) return;
-        // console.log(country)
 
         const load = async () => {
             try {

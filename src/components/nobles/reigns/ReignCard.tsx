@@ -113,18 +113,15 @@ function ReignCard() {
 // console.log(monarch)
     return (
         <Box sx={{
-            // p: 1,
+            flex: 1,
             borderRadius: 2,
-            // border: '1px solid lightgray',
-            display: monarch?.reigns && monarch.reigns.length > 0 ? 'flex' : 'none',
+            display: monarch?.reigns && monarch.reigns.length > 0 ? 'grid' : 'none',
             flexDirection: 'row',
             flexWrap: 'wrap',
             gap: 1,
-            // bgcolor: 'background.paper',
         }}>
-
             {monarch?.reigns && (groupReigns(monarch?.reigns || []).map((reignGroup, index) =>
-                <GenericTile key={index} width={'100%'}>
+                <GenericTile key={index}>
                     {reignGroup.reigns.length > 1 ? <>
                             <Flags countries={reignGroup.countries}/>
                             <Stack direction={'row'} spacing={2}>
