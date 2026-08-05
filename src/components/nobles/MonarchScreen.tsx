@@ -63,7 +63,7 @@ function MonarchScreen() {
             }
         }
 
-        fetch(`${second_url}/data/monarchs/descbyid/${monarch?.id}`, request)
+        fetch(`${second_url}/monarch/${monarch?.id}`, request)
             .then(response => {
                 // Check if the response status is 200-299
                 if (!response.ok) {
