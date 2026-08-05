@@ -41,11 +41,14 @@ export function SameTimeRulers(props: { span: Date[] }) {
         <Box>
             <Box
                 sx={{
-                    display: 'flex',
+                    display: 'grid',
                     flexDirection: 'row',
                     flexWrap: 'wrap',
                     gap: '0.5rem',
-                    bgcolor: 'background.paper',
+                    // bgcolor: 'background.paper',
+                    // minWidth: 0,
+                    // overflow: "hidden",
+
                 }}>
 
                 {sameTimers.map(monarch=>

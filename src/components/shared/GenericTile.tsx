@@ -6,10 +6,10 @@ import {useNavigate} from "react-router-dom";
 import DisplayName from "./DisplayName";
 import {useVisibility} from "../../utils/useVisibility";
 
-interface PersonTileProps {
+interface TileProps {
     displayedThrone?: Throne,
     displayedMonarch?: Monarch,
-    width: string,
+    width?: string,
     children?: ReactNode,
     displayedReign?: Reign
 }
@@ -111,9 +111,8 @@ function NobleTileContent(props: { reign: Reign | undefined, monarch: Monarch })
     </Stack>);
 }
 
-const GenericTile: React.FC<PersonTileProps> = ({
+const GenericTile: React.FC<TileProps> = ({
                                                     displayedMonarch,
-                                                    width,
                                                     children,
                                                     displayedThrone,
                                                     displayedReign
@@ -128,13 +127,16 @@ const GenericTile: React.FC<PersonTileProps> = ({
         <Box
             ref={ref}
             sx={{
-                width: width,
+                // minWidth: 250,
                 p: 1,
                 borderRadius: 2,
                 border: "1px solid lightgray",
                 boxSizing: "border-box",
                 flexShrink: 0,
-                bgcolor: "white"
+                bgcolor: "white",
+                minWidth: 0,            // allow tile to shrink
+                maxWidth: "100%",       // prevent overflow
+                overflow: "hidden",     // hide anything that tries to escape
             }}
         >
             {/* Always render lightweight children */}

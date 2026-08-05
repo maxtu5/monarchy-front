@@ -32,6 +32,7 @@ const DisplayName = ({
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
+
         }}>{type}</Typography>
         <Stack direction={'row'}>
             <StarOutlineIcon
