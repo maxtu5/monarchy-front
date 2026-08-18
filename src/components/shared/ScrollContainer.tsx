@@ -1,4 +1,4 @@
-import React, {ReactNode, useRef} from "react";
+import React, {ReactNode, useMemo, useRef} from "react";
 import {Box, IconButton, Typography} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -45,12 +45,25 @@ export function ScrollItem(props: ScrollItemProps) {
 export function ScrollContainer(props: { children: ReactNode, stripesMap?: Map<string, string[]> }) {
     const scrollRef = useRef<HTMLDivElement | null>(null);
 
-    const items = React.Children.toArray(props.children)
-        .map(child => (child as any).props as { tile: ReactNode; stripes?: string[] });
+    const items = useMemo(() => {
+        return React.Children.toArray(props.children).map(child => {
+            const itemProps = (child as any).props as { tile: ReactNode; stripes?: string[] };
+
+            return {
+                tile: itemProps.tile,
+                // Переводим массив в Set для мгновенного поиска O(1) вместо .includes()
+                stripesSet: itemProps.stripes ? new Set(itemProps.stripes) : new Set<string>()
+            };
+        });
+    }, [props.children]);
 
     const scroll = (offset: number) => {
         scrollRef.current?.scrollBy({left: offset, behavior: "smooth"});
     };
+
+    const connectedCountries = useMemo(() => {
+        return Array.from(props.stripesMap?.keys() || []);
+    }, [props.stripesMap]);
 
     return (
         <Box sx={{width: "100%", position: "relative", overflow: "hidden", my: 1}}>
@@ -82,44 +95,51 @@ export function ScrollContainer(props: { children: ReactNode, stripesMap?: Map<s
                     "&::-webkit-scrollbar": {display: "none"}
                 }}
             >
+                {/* Единый контейнер для сетки тайлов и страйпов */}
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, width: "max-content" }}>
 
-                <Box sx={{display: "flex", gap: 2}}>
-                    {items.map((i, idx) => (
-                        <Box key={idx} sx={{display: "flex", flexDirection: "column", gap: 1}}>
-
-                            {/* Tiles row */}
-                            <Box sx={{display: "flex", gap: 2}}>
-                                {items.map((i, idx) => (
-                                    <Box key={idx} sx={{width: 250}}>
-                                        {i.tile}
-                                    </Box>
-                                ))}
+                    {/* РЯД 1: Все плитки монархов в одну линию */}
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                        {items.map((i, idx) => (
+                            <Box key={idx} sx={{ width: 250, flexShrink: 0 }}>
+                                {i.tile}
                             </Box>
+                        ))}
+                    </Box>
 
-                            {/* Stripe rows */}
-                            <Box sx={{display: "flex", gap: 4, flexDirection: "column"}}>
-                                {Array.from(props.stripesMap?.keys() || []).map(country => (
-                                    <Box key={country} sx={{ display: "flex", gap: 2}}>
+                    {/* РЯД 2: Страйпы связей под плитками */}
+                    {connectedCountries.length > 0 && (
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 1 }}>
+                            {connectedCountries.map(country => {
+                                return (
+                                    <Box key={country} sx={{ display: "flex", gap: 2 }}>
+                                        {items.map((i, idx) => {
+                                            // Сверхбыстрая проверка O(1) через Set.has вместо медленного .includes
+                                            const hasConnection = i.stripesSet.has(country);
 
-                                        {items.map((i, idx) => (
-                                            <Box key={idx} sx={{position: 'relative',width: 250}}>
-                                                {i.stripes?.includes(country) && <Box sx={{position: 'absolute', left: 1, top: 0}}>
-                                                    <Flags countries={[country]}/>
-                                                </Box>}
-                                                <Stripe
-                                                    country={country}
-                                                    exists={i.stripes?.includes(country) ?? false}
-                                                />
-                                            </Box>
-                                        ))}
+                                            return (
+                                                <Box key={idx} sx={{ position: 'relative', width: 250, flexShrink: 0 }}>
+                                                    {hasConnection && (
+                                                        <Box sx={{ position: 'absolute', left: 4, top: 2, zIndex: 1 }}>
+                                                            <Flags countries={[country]} />
+                                                        </Box>
+                                                    )}
+                                                    <Stripe
+                                                        country={country}
+                                                        exists={hasConnection}
+                                                    />
+                                                </Box>
+                                            );
+                                        })}
                                     </Box>
-                                ))}
-                            </Box>
-
+                                );
+                            })}
                         </Box>
-                    ))}
+                    )}
+
                 </Box>
             </Box>
+
 
             {/* Right arrow */}
             <IconButton

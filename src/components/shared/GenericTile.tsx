@@ -134,9 +134,9 @@ const GenericTile: React.FC<TileProps> = ({
                 boxSizing: "border-box",
                 flexShrink: 0,
                 bgcolor: "white",
-                minWidth: 0,            // allow tile to shrink
-                maxWidth: "100%",       // prevent overflow
-                overflow: "hidden",     // hide anything that tries to escape
+                minWidth: 0,
+                maxWidth: "100%",
+                overflow: "hidden",
             }}
         >
             {/* Always render lightweight children */}

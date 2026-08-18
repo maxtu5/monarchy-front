@@ -1,17 +1,23 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Avatar, Box, Tooltip, Typography} from "@mui/material";
-import {KingdomContext} from "../../utils/context";
 import GenericTile from "../shared/GenericTile";
 import DisplayName from "../shared/DisplayName";
 import {useParams} from "react-router-dom";
 import {ScrollContainer, ScrollItem} from "../shared/ScrollContainer";
-import {ThroneDetails} from "./ThroneDetails";
 import {fetchThroneDetails} from "../../fetchers/fetchersThrones";
 import {LoadingScreen} from "../shared/LoadingScreen";
+import {ThronePlus} from '../../utils/types';
+import {ThroneDetails} from "./ThroneDetails";
 
-function Header() {
-    const {throne} = useContext(KingdomContext);
+interface HeaderProps {
+    throne: ThronePlus,
+    setThrone: (value: ThronePlus | null) => void,
+    displayConnections: boolean,
+    setDisplayConnections: (value: boolean) => void,
+    connectedThronesMap: Map<string, string[]>
+}
 
+function Header({throne, setThrone, displayConnections, setDisplayConnections, connectedThronesMap}: HeaderProps) {
     return (
         <Box
             sx={{
@@ -25,12 +31,12 @@ function Header() {
         >
             {/* Row 1 — Flag + Name  */}
             <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
-                <Tooltip title={throne?.country}>
-                    <Avatar src={throne?.flagUrl}/>
+                <Tooltip title={throne.country}>
+                    <Avatar src={throne.flagUrl}/>
                 </Tooltip>
 
                 <Typography variant="h4" noWrap>
-                    {throne?.name}
+                    {throne.name}
                 </Typography>
             </Box>
 
@@ -46,24 +52,32 @@ function Header() {
                 }}
             >
                 {/* Left 25% */}
-                <ThroneDetails/>
+                <ThroneDetails throne={throne} setThrone={setThrone}
+                               displayConnections={displayConnections}
+                               setDisplayConnections={setDisplayConnections}
+                               connectedThronesMap={connectedThronesMap}
+                />
 
                 {/* Right remaining space */}
                 <Typography variant="body1">
-                    {throne?.description}
+                    {throne.description}
                 </Typography>
             </Box>
         </Box>
     );
 }
 
-function MonarchSelector() {
-    const {throne} = useContext(KingdomContext)
-    // console.log(throne?.reigns)
+interface MonarchSelectorProps {
+    throne: ThronePlus,
+    connectedThronesMap: Map<string, string[]>
+}
+
+function MonarchSelector({throne, connectedThronesMap}: MonarchSelectorProps) {
     return (
         <Box sx={{m: 1, bgcolor: "#ddd"}}>
-            <ScrollContainer stripesMap={throne?.connectedThrones}>
-                {throne?.reigns.map(item => (
+            <ScrollContainer
+                stripesMap={connectedThronesMap}>
+                {throne.reigns.map(item => (
                     <ScrollItem
                         key={item.id}
                         tile={
@@ -88,7 +102,8 @@ function MonarchSelector() {
 }
 
 function ThroneScreen() {
-    const {throne, setThrone} = useContext(KingdomContext)
+    const [throne, setThrone] = useState<ThronePlus | null>(null);
+    const [displayConnections, setDisplayConnections] = useState(false);
     const {country} = useParams();
 
     useEffect(() => {
@@ -103,15 +118,57 @@ function ThroneScreen() {
             }
         };
         load();
-        return () => setThrone(null)
+
+        return () => {
+            setThrone(null);
+            setDisplayConnections(false); // Сбрасываем чекбокс при смене страны
+        };
     }, [country]);
 
-    if (!throne) return <LoadingScreen />;
+    const connectedThronesMap = useMemo(() => {
+        if (!displayConnections || !throne?.reigns) return new Map<string, string[]>();
+        const connections = new Map<string, string[]>();
+        const currentCountry = throne.country;
+        const reigns = throne.reigns;
+        const len = reigns.length;
+
+        for (let i = 0; i < len; i++) {
+            const monarch = reigns[i].monarch;
+            if (!monarch?.reigns || !monarch.id) continue;
+
+            const monarchReigns = monarch.reigns;
+            const mLen = monarchReigns.length;
+            const monarchId = monarch.id;
+
+            for (let j = 0; j < mLen; j++) {
+                const countryName = monarchReigns[j].country;
+                if (countryName === currentCountry) continue;
+
+                const list = connections.get(countryName);
+                if (list !== undefined) {
+                    list.push(monarchId);
+                } else {
+                    connections.set(countryName, [monarchId]);
+                }
+            }
+        }
+        return connections;
+    }, [throne?.reigns, throne?.country, displayConnections]);
+
+    if (!throne) return <LoadingScreen/>;
 
     return (
         <>
-            <Header/>
-            <MonarchSelector/>
+            <Header
+                throne={throne}
+                setThrone={setThrone}
+                displayConnections={displayConnections}
+                setDisplayConnections={setDisplayConnections}
+                connectedThronesMap={connectedThronesMap}
+            />
+            <MonarchSelector throne={throne}
+                             connectedThronesMap={connectedThronesMap}
+            />
         </>
     )
 }

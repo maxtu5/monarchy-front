@@ -1,69 +1,72 @@
 import {Monarch, Reign} from "../utils/types";
 import {
     base_url,
-    path_graphql_query,
+    path_post_graphql_query,
     request_find_monarchs_byname,
     request_find_monarchs_byyear,
 } from "../utils/constants";
-import {buildRequest, parseMonarch, sanitizeImageUrl} from "./fetchersUtils";
+import { buildPostRequest, parseMonarch, sanitizeImageUrl} from "./fetchersUtils";
 
-export async function fetchMonarch(id: string): Promise<Monarch|null> {
-    const query = `{ 
-    monarch(uuid:"_ID_") {
-        uuid name url description gender birth death status imageUrl imageCaption
-        reigns {
-            title start end country
-            successor {
-                title
-                monarch {
-                    uuid name
-                    reigns {
-                        title start end country
+export async function fetchMonarch(id: string): Promise<Monarch | null> {
+    const query = `query GetMonarchWithFamily($uuid: String!) { 
+        monarch(uuid: $uuid) {
+            uuid name url description gender birth death status imageUrl imageCaption
+            reigns {
+                title start end country
+                successor {
+                    title
+                    monarch {
+                        uuid name
+                        reigns {
+                            title start end country
+                        }
+                    }
+                }
+                predecessor {
+                    title
+                    monarch {
+                        uuid name
+                        reigns {
+                            title start end country
+                        }
                     }
                 }
             }
-            predecessor {
-                title
-                monarch {
-                    uuid name
-                    reigns {
-                        title start end country
-                    }
+            father {
+                uuid name url description gender birth death status imageUrl imageCaption
+                reigns {
+                    country
+                }
+            }
+            mother {
+                uuid name url description gender birth death status imageUrl imageCaption
+                reigns {
+                    country
+                }
+            }
+            maternalChildren {
+                uuid name url description gender birth death status imageUrl imageCaption
+                reigns {
+                    country
+                }
+            }
+            paternalChildren {
+                uuid name url description gender birth death status imageUrl imageCaption
+                reigns {
+                    country
                 }
             }
         }
-    father {
-        uuid name url description gender birth death status imageUrl imageCaption
-        reigns {
-            country
-        }
-    }
-    mother {
-        uuid name url description gender birth death status imageUrl imageCaption
-        reigns {
-            country
-        }
-    }
-    maternalChildren {
-        uuid name url description gender birth death status imageUrl imageCaption
-        reigns {
-            country
-        }
-    }
-    paternalChildren {
-        uuid name url description gender birth death status imageUrl imageCaption
-        reigns {
-            country
-        }
-    }}}`.replace("_ID_", id);
-    // console.log(id, query)
-    const request = buildRequest(query);
-    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    }`;
+    const variables = { uuid: id };
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+
     if (!response.ok) {
         throw new Error(`Network error: ${response.status}`);
     }
-    const json = await response.json();
 
+    const json = await response.json();
     return parseMonarch(json.data.monarch);
 }
 
@@ -73,36 +76,39 @@ const RELATIONSHIPS: Record<string, {
     post?: (list: Monarch[], id: string) => Monarch[]
 }> = {
     siblings: {
-        query: `
-        { monarch(uuid:"_ID_") {
-            uuid
-            father { uuid paternalChildren { uuid name gender birth death imageUrl reigns {country}} }
-            mother { uuid maternalChildren { uuid name gender birth death  imageUrl reigns {country}} }
-        }}`,
+        query: `query GetSiblings($uuid: String!) { 
+            monarch(uuid: $uuid) {
+                uuid
+                father { uuid paternalChildren { uuid name gender birth death imageUrl reigns {country}} }
+                mother { uuid maternalChildren { uuid name gender birth death imageUrl reigns {country}} }
+            }
+        }`,
         paths: ['father.paternalChildren', 'mother.maternalChildren'],
         post: (list, id) => list.filter(m => m.id !== id)
     },
 
     spouses: {
-        query: `
-        { monarch(uuid:"_ID_") {
-            uuid
-            paternalChildren { uuid mother { uuid name gender birth death  imageUrl reigns {country}} }
-            maternalChildren { uuid father { uuid name gender birth death  imageUrl reigns {country}} }
-        }}`,
+        query: `query GetSpouses($uuid: String!) { 
+            monarch(uuid: $uuid) {
+                uuid
+                paternalChildren { uuid mother { uuid name gender birth death imageUrl reigns {country}} }
+                maternalChildren { uuid father { uuid name gender birth death imageUrl reigns {country}} }
+            }
+        }`,
         paths: ['paternalChildren.mother', 'maternalChildren.father'],
         post: (list, id) => list.filter(m => m.id !== id)
     },
 
     parent_siblings: {   // uncles & aunts
-        query: `
-        { monarch(uuid:"_ID_") {
-            uuid
-            father { uuid father { uuid paternalChildren { uuid name gender birth death  imageUrl reigns {country}} }
-                     mother { uuid maternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-            mother { uuid father { uuid paternalChildren { uuid name gender birth death  imageUrl reigns {country}} }
-                     mother { uuid maternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-        }}`,
+        query: `query GetParentSiblings($uuid: String!) { 
+            monarch(uuid: $uuid) {
+                uuid
+                father { uuid father { uuid paternalChildren { uuid name gender birth death imageUrl reigns {country}} }
+                         mother { uuid maternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+                mother { uuid father { uuid paternalChildren { uuid name gender birth death imageUrl reigns {country}} }
+                         mother { uuid maternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+            }
+        }`,
         paths: [
             'father.father.paternalChildren',
             'father.mother.maternalChildren',
@@ -113,18 +119,19 @@ const RELATIONSHIPS: Record<string, {
     },
 
     cousins: {
-        query: `
-        { monarch(uuid:"_ID_") {
-            uuid
-            father {
-                father { paternalChildren { paternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-                mother { maternalChildren { maternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
+        query: `query GetCousins($uuid: String!) { 
+            monarch(uuid: $uuid) {
+                uuid
+                father {
+                    father { paternalChildren { paternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+                    mother { maternalChildren { maternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+                }
+                mother {
+                    father { paternalChildren { paternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+                    mother { maternalChildren { maternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+                }
             }
-            mother {
-                father { paternalChildren { paternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-                mother { maternalChildren { maternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-            }
-        }}`,
+        }`,
         paths: [
             'father.father.paternalChildren.paternalChildren',
             'father.mother.maternalChildren.maternalChildren',
@@ -135,12 +142,13 @@ const RELATIONSHIPS: Record<string, {
     },
 
     niblings: { // nieces & nephews
-        query: `
-        { monarch(uuid:"_ID_") {
-            uuid
-            father { paternalChildren { paternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-            mother { maternalChildren { maternalChildren { uuid name gender birth death  imageUrl reigns {country}} } }
-        }}`,
+        query: `query GetNiblings($uuid: String!) { 
+            monarch(uuid: $uuid) {
+                uuid
+                father { paternalChildren { paternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+                mother { maternalChildren { maternalChildren { uuid name gender birth death imageUrl reigns {country}} } }
+            }
+        }`,
         paths: [
             'father.paternalChildren.paternalChildren',
             'mother.maternalChildren.maternalChildren'
@@ -152,10 +160,10 @@ export async function fetchMonarchList(id: string, variant: string): Promise<Mon
     const rel = RELATIONSHIPS[variant];
     if (!rel) return [];
 
-    const query = rel.query.replace('_ID_', id);
-    const request = buildRequest(query);
+    const variables = { uuid: id };
+    const request = buildPostRequest(rel.query, variables);
 
-    const response = await fetch(`${base_url}${path_graphql_query}`, request);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
     if (!response.ok) throw new Error(`Network error: ${response.status}`);
 
     const json = await response.json();
@@ -167,6 +175,7 @@ export async function fetchMonarchList(id: string, variant: string): Promise<Mon
 
     return list;
 }
+
 
 export function parseMonarchList(subpaths: string[], response: any): Monarch[] {
     const collected: Monarch[] = [];
@@ -210,63 +219,98 @@ export function parseMonarchList(subpaths: string[], response: any): Monarch[] {
 }
 
 export async function fetchRandomNobles(skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `
-    { monarchs( order: random, limit: 20) {
-        uuid
-        name
-        birth
-        death
-        imageUrl
-        reigns {
-            uuid 
-            country
+    const query = `query GetRandomNobles($skip: Int!, $limit: Int!) {
+        monarchs(order: random, skip: $skip, limit: $limit) {
+            uuid
+            name
+            birth
+            death
+            imageUrl
+            reigns {
+                uuid 
+                country
+            }
         }
-    }}
-    `;
-    const request = buildRequest(query)
-    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    }`;
+    const variables = { skip, limit };
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
     const json = await response.json();
-    return json.data.monarchs.map((m: any)=>extractMonarch(m, false))
+    return json.data.monarchs.map((m: any) => extractMonarch(m, false));
 }
+
 
 export async function fetchLivingNobles(skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `
-    { monarchs(filter: {lifetime: {range :{ from: "1890-infinity", to: "null"}}}, order: birth, limit: 50) {
-        uuid
-        name
-        birth
-        death
-        imageUrl
-        reigns {
-            uuid 
-            country
+    const query = `query GetLivingNobles($skip: Int!, $limit: Int!) {
+        monarchs(
+            filter: { lifetime: { range: { from: "1890-infinity", to: "null" } } }, 
+            order: birth, 
+            skip: $skip, 
+            limit: $limit
+        ) {
+            uuid
+            name
+            birth
+            death
+            imageUrl
+            reigns {
+                uuid 
+                country
+            }
         }
-    }}
-    `;
-    const request = buildRequest(query)
-    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    }`;
+    const variables = { skip, limit };
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
     const json = await response.json();
-    return json.data.monarchs.map((m: any)=>extractMonarch(m, false))
+    return json.data.monarchs.map((m: any) => extractMonarch(m, false));
 }
 
+
 export async function fetchSameTimers(from: string, to: string, skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `
-    { monarchs(filter: {reigntime: {range :{ from: "infinity-${to}", to: "${from}-infinity|null"}}}, order: birth, limit: 50) {
-        uuid
-        name
-        birth
-        death
-        imageUrl
-        reigns {
-            uuid 
-            country
+    const query = `query GetSameTimers($from: String!, $to: String!, $skip: Int!, $limit: Int!) {
+        monarchs(
+            filter: { reigntime: { range: { from: $from, to: $to } } }, 
+            order: birth, 
+            skip: $skip, 
+            limit: $limit
+        ) {
+            uuid
+            name
+            birth
+            death
+            imageUrl
+            reigns {
+                uuid 
+                country
+            }
         }
-    }}
-    `;
-    const request = buildRequest(query)
-    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    }`;
+
+    const variables = { from, to, skip, limit };
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
     const json = await response.json();
-    return json.data.monarchs.map((m: any)=>extractMonarch(m, false))
+    console.log(json)
+
+    return json.data.monarchs.map((m: any) => extractMonarch(m, false));
 }
 
 export function findMonarchsByName(searchString: string) {
@@ -283,8 +327,8 @@ async function fetchMonarchs(
     responseKey: string
 ): Promise<{ id: string; name: string }[]> {
     try {
-        const request = buildRequest(requestTemplate.replace('_SRCH_', `${searchString}`));
-        const response = await fetch(`${base_url}${path_graphql_query}`, request);
+        const request = await buildPostRequest(requestTemplate.replace('_SRCH_', `${searchString}`));
+        const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
 
         if (!response.ok) {
             throw new Error(`Network error: ${response.status} ${response.statusText}`);

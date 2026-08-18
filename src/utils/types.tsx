@@ -9,7 +9,7 @@ export interface Throne {
     lastMonarch: Monarch | null
 }
 
-export interface ThroneDetails extends Throne {
+export interface ThronePlus extends Throne {
     description: string,
     reigns: Reign[],
     connectedThrones?: Map<string, string[]>
@@ -51,8 +51,6 @@ export interface Monarch {
 
 export interface ContextData {
     allThrones: Throne[],
-    throne: ThroneDetails | null,
-    setThrone: (ThroneDetails: ThroneDetails|null) => void,
     monarch: Monarch | null,
     setMonarch: (m: Monarch | null)=> void
 }

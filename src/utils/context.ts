@@ -1,5 +1,5 @@
 import React from "react";
-import {ContextData, Monarch, Throne, ThroneDetails} from "./types";
+import {ContextData, Monarch, Throne, ThronePlus} from "./types";
 
 const thrones: Array<Throne> = []
 
@@ -9,8 +9,6 @@ export const KingdomContext = React.createContext<ContextData>(
     {
         allThrones: thrones,
         monarch: monarch,
-        throne: null,
-        setThrone: (throne: ThroneDetails | null)=>{},
         setMonarch: function (m: Monarch | null): void {}
     })
 

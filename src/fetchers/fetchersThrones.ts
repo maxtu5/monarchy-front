@@ -1,11 +1,11 @@
-import {Monarch, Reign, Throne, ThroneDetails} from "../utils/types";
-import {base_url, path_graphql_query} from "../utils/constants";
-import {buildRequest, parseMonarch, parseReign, sanitizeImageUrl} from "./fetchersUtils";
+import { Reign, Throne, ThronePlus} from "../utils/types";
+import {base_url, path_post_graphql_query, path_get_graphql_query} from "../utils/constants";
+import { buildPostRequest, parseMonarch, parseReign, sanitizeImageUrl} from "./fetchersUtils";
 
 export async function fetchAllThrones(): Promise<Throne[]> {
     const query = `{ 
     thrones {
-        name country flagUrl geography
+        uuid name country flagUrl geography
         latestReign {
         uuid end
             monarch {
@@ -16,8 +16,8 @@ export async function fetchAllThrones(): Promise<Throne[]> {
             start
         }
     }}`
-    const request = buildRequest(query);
-    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    const request = buildPostRequest(query);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request)
     if (!response.ok) {
         throw new Error(`Network error: ${response.status}`);
     }
@@ -41,12 +41,12 @@ function parseAllThrones(response: any): Throne[] {
     })
 }
 
-export async function fetchThroneDetails(country: string): Promise<ThroneDetails> {
-    const query = `
-    { throne(country:"_COUNTRY_") {
-            name country flagUrl geography description
+export async function fetchThroneDetails(country: string): Promise<ThronePlus> {
+    const query = `query GetThroneDetails($country: String!) {
+        throne(country: $country) {
+            uuid name country flagUrl geography description
             latestReign {
-                start end
+                uuid start end
                 monarch {
                     uuid name
                 }
@@ -60,18 +60,21 @@ export async function fetchThroneDetails(country: string): Promise<ThroneDetails
                 }
             }
         }
-    }`.replace("_COUNTRY_", country.toUpperCase());
-    const request = buildRequest(query);
-    const response = await fetch(`${base_url}${path_graphql_query}`, request)
+    }`;
+    const variables = { country: country.toUpperCase() };
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+
     if (!response.ok) {
         throw new Error(`Network error: ${response.status}`);
     }
-    const json = await response.json();
 
+    const json = await response.json();
     return parseThroneDetails(json);
 }
 
-function parseThroneDetails(response: any): ThroneDetails {
+function parseThroneDetails(response: any): ThronePlus {
     const throne = response.data.throne;
     const retval = {
         name: throne.name,

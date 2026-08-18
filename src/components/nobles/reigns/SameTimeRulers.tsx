@@ -1,6 +1,5 @@
 import {Monarch} from "../../../utils/types";
-import React, {useContext, useEffect, useState} from "react";
-import {KingdomContext} from "../../../utils/context";
+import React, { useEffect, useState} from "react";
 import {fetchSameTimers} from "../../../fetchers/fetchersMonarchs";
 import {Box} from "@mui/material";
 import DisplayName from "../../shared/DisplayName";
@@ -8,13 +7,14 @@ import GenericTile from "../../shared/GenericTile";
 
 export function SameTimeRulers(props: { span: Date[] }) {
     const [sameTimers, setSameTimers] = useState<Monarch[]>([]);
-    const {allThrones, setMonarch} = useContext(KingdomContext)
 
     useEffect(() => {
+        console.log(props.span)
         if (sameTimers.length === 0)
             fetchSameTimers(
                 props.span[0].getFullYear().toString(),
-                props.span[1]===null ? new Date().getFullYear().toString() : props.span[1].getFullYear().toString()
+                props.span[1]===null ? new Date().getFullYear().toString() : props.span[1].getFullYear().toString(),
+                0, 100
             ).then(setSameTimers)
 
     }, []);
@@ -35,8 +35,13 @@ export function SameTimeRulers(props: { span: Date[] }) {
                 retval[index].monarchs = [...retval[index].monarchs, monarch]
             }
         })
+
+
         return retval;
     }
+
+    console.log(sameTimers)
+
     return (
         <Box>
             <Box

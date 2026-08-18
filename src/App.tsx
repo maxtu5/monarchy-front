@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import './App.css';
 import {KingdomContext, ModeContext} from "./utils/context";
-import {Monarch, Throne, ThroneDetails} from "./utils/types";
+import {Monarch, Throne, ThronePlus} from "./utils/types";
 import AppRouter from "./components/main/AppRouter";
 import {BrowserRouter} from "react-router-dom";
 import {fetchAllThrones} from "./fetchers/fetchersThrones";
@@ -29,7 +29,6 @@ function App() {
     const [mode, setMode] = useState(0);
     const [thrones, setThrones] = useState<Throne[]>([]);
     const [monarch, setMonarch] = useState<Monarch | null>(null)
-    const [throne, setThrone] = useState<ThroneDetails | null>(null)
 
     useEffect(() => {
         fetchAllThrones().then((thrones: Throne[]) => {
@@ -39,11 +38,9 @@ function App() {
 
     const contextValue = useMemo(() => ({
         allThrones: thrones,
-        throne: throne,
-        setThrone: setThrone,
         monarch: monarch,
         setMonarch: setMonarch
-    }), [thrones, monarch, throne]);
+    }), [thrones, monarch]);
 
     return (
         <BrowserRouter basename={'/monarchy'}>

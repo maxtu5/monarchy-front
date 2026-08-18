@@ -1,36 +1,29 @@
-import React, {useContext, useEffect, useState} from "react";
-import {KingdomContext} from "../../utils/context";
-import {Box, Stack, Typography} from "@mui/material";
+import React, {useMemo, useState} from "react";
+import {Box, Checkbox, Stack, Typography} from "@mui/material";
 import DisplayName from "../shared/DisplayName";
 import {Flags} from "../shared/Flags";
+import {ThronePlus} from "../../utils/types";
 
-export function ThroneDetails() {
-    const {throne, setThrone} = useContext(KingdomContext);
+interface ThroneDetailsProps {
+    throne: ThronePlus,
+    setThrone: (value: (ThronePlus | null)) => void,
+    displayConnections: boolean,
+    setDisplayConnections: (value: boolean) => void,
+    connectedThronesMap: Map<string, string[]>
+}
 
-    useEffect(() => {
-        if (!throne || throne.connectedThrones) return;
-        const connections = new Map<string, string[]>();
+export function ThroneDetails({
+                                  throne,
+                                  setThrone,
+                                  displayConnections,
+                                  setDisplayConnections,
+                                  connectedThronesMap
+                              }: ThroneDetailsProps) {
 
-        for (const r of throne.reigns) {
-            const monarch = r.monarch;
-            if (!monarch) continue;
-
-            for (const rr of monarch.reigns) {
-                if (rr.country === throne.country) continue;
-
-                const list = connections.get(rr.country);
-                if (list) {
-                    list.push(monarch.id);
-                } else {
-                    connections.set(rr.country, [monarch.id]);
-                }
-            }
-        }
-        setThrone({...throne, connectedThrones: connections})
-    }, [throne]);
+    const connectedCountries = useMemo(() => Array.from(connectedThronesMap.keys()), [connectedThronesMap]);
 
     return (
-        <Box sx={{display: 'flex', flexDirection:'column'}}>
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
             <Typography variant="h6" color="text.secondary">
                 Historical era
             </Typography>
@@ -39,31 +32,46 @@ export function ThroneDetails() {
             </Typography>
 
             <Typography variant="h6" color="text.secondary">
-                Rulers ({throne?.reigns.length})
+                Rulers ({throne?.reigns?.length || 0})
             </Typography>
             <Stack direction="row" spacing={2} sx={{alignItems: 'baseline'}}>
                 <DisplayName
-                    monarch={throne===null ? null : throne.lastMonarch}
+                    monarch={throne === null ? null : throne.lastMonarch}
                     type="Last"
                     displayCrown={false}
                 />
             </Stack>
             <Stack direction="row" spacing={2} sx={{alignItems: 'baseline'}}>
                 <DisplayName
-                    monarch={throne?.reigns[throne?.reigns.length - 1].monarch || null}
+                    monarch={throne?.reigns && throne.reigns.length > 0
+                        ? throne.reigns[throne.reigns.length - 1].monarch
+                        : null
+                    }
                     type="First"
                     displayCrown={false}
                 />
             </Stack>
 
-            <Typography variant="h6" color="text.secondary">
-                Throne connections
-            </Typography>
-            <Stack spacing={1}>
-            {Array.from(throne?.connectedThrones?.keys() || []).map(t => (
-                <Flags key={t} countries={[t]}/>
+            {/* THRONE CONNECTIONS */}
+            <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                <Typography variant="h6">Connections</Typography>
+                <Checkbox
+                    checked={displayConnections}
+                    onChange={() => setDisplayConnections(!displayConnections)}
+                    sx={{
+                        '& .MuiSvgIcon-root': {fontSize: 16}
+                    }}
+                />
+            </Box>
+
+            {displayConnections && (connectedCountries.length === 0 ? 'NONE' : (
+                <Stack spacing={1} sx={{mt: 1}}>
+                    {connectedCountries.map(countryName => (
+                        <Flags key={countryName} countries={[countryName]}/>
+                    ))}
+                </Stack>
             ))}
-            </Stack>
+
         </Box>
     );
 }

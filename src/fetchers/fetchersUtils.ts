@@ -1,14 +1,13 @@
 import {Monarch, Reign} from "../utils/types";
 
-export function buildRequest(s: string): RequestInit {
+export function buildPostRequest(query: string, variables: Record<string, any> = {}): RequestInit {
+    const body = JSON.stringify({query, variables});
     return {
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            query: s
-        })
+        body
     };
 }
 
@@ -60,6 +59,9 @@ export function sanitizeImageUrl(imageUrl: string | undefined): string|undefined
     ret = !ret ? ret : ret.includes('1024px') ? ret.replace('1024px', '250px') : ret;
     ret = !ret ? ret : ret.includes('1250px') ? ret.replace('1250px', '250px') : ret;
     ret = !ret ? ret : ret.includes('640px') ? ret.replace('640px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('225px') ? ret.replace('225px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('180px') ? ret.replace('180px', '250px') : ret;
+    ret = !ret ? ret : ret.includes('260px') ? ret.replace('260px', '250px') : ret;
 
     return ret;
 }
