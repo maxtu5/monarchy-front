@@ -1,13 +1,11 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {KingdomContext, ModeContext} from "../../utils/context";
-import {Box, Button, Link, Stack, TextField, Typography} from "@mui/material";
+import React, {useEffect, useState} from 'react';
+import {Box, Button, Divider, Link, Stack, TextField, Typography} from "@mui/material";
 import {findMonarchsByName, findMonarchsByYear} from "../../fetchers/fetchersMonarchs";
-import {Monarch} from "../../utils/types";
+
+import {useNavigate} from "react-router-dom";
 
 
 function SearchBar() {
-    const {setMode} = useContext(ModeContext)
-    const {setMonarch} = useContext(KingdomContext)
     const ITEMS_PER_PAGE = 15;
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +13,7 @@ function SearchBar() {
     const [debouncedTerm, setDebouncedTerm] = useState('');
     const [debouncedYear, setDebouncedYear] = useState('');    const [monarchs, setMonarchs] = useState<{ id: string; name: string }[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -37,7 +36,7 @@ function SearchBar() {
                 setCurrentPage(1);
             });
         } else if (year) {
-            findMonarchsByYear(year).then((results) => {
+            findMonarchsByYear(year, 0, 1000).then((results) => {
                 setMonarchs(results);
                 setCurrentPage(1);
             });
@@ -50,7 +49,11 @@ function SearchBar() {
     const totalPages = Math.ceil(monarchs.length / ITEMS_PER_PAGE);
 
     return (
-        <Box m={1}>
+        <Box sx={{p:1, m:1, bgcolor: '#ddd'}}>
+            <Box sx={{display: "flex", justifyContent: "space-between", m: 1}}>
+                <Typography variant={'h5'}>Search nobles</Typography>
+            </Box>
+            <Divider sx={{mb: 0}}/>
             <TextField
                 label="Search Monarchs"
                 variant="outlined"
@@ -70,23 +73,14 @@ function SearchBar() {
                 margin="normal"
                 size={'small'}
             />
-            <Box mt={2}>
+            <Box sx={{mt:2}}>
                 {paginatedMonarchs.length === 0 ? (
                     <Typography>No monarchs found.</Typography>
                 ) : (
                     paginatedMonarchs.map((monarch) => (
                         <Typography key={monarch.id}>
-
-                            <Link onClick={async () => {
-                                // @ts-ignore
-                                const retval: Monarch | null = await loadMonarch(monarch.id);
-                                if (retval !== null) {
-                                    setMonarch(retval);
-                                    setMode(1)
-                                }
-                            }}>
-
-                            {monarch.name}
+                            <Link onClick={ () => navigate(`/noble/${monarch.id}`) }>
+                                {monarch.name}
                             </Link>
                         </Typography>
                     ))
@@ -94,7 +88,7 @@ function SearchBar() {
             </Box>
 
             {totalPages > 1 && (
-                <Stack direction="row" spacing={2} mt={2}>
+                <Stack direction="row" spacing={2} sx={{mt:2}}>
                     <Button
                         variant="contained"
                         disabled={currentPage === 1}

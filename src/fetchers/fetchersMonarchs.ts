@@ -2,7 +2,6 @@ import {Monarch, Reign} from "../utils/types";
 import {
     base_url,
     path_post_graphql_query,
-    request_find_monarchs_byname,
     request_find_monarchs_byyear,
 } from "../utils/constants";
 import { buildPostRequest, parseMonarch, sanitizeImageUrl} from "./fetchersUtils";
@@ -18,7 +17,7 @@ export async function fetchMonarch(id: string): Promise<Monarch | null> {
                     monarch {
                         uuid name
                         reigns {
-                            title start end country
+                            uuid title start end country
                         }
                     }
                 }
@@ -27,7 +26,7 @@ export async function fetchMonarch(id: string): Promise<Monarch | null> {
                     monarch {
                         uuid name
                         reigns {
-                            title start end country
+                            uuid title start end country
                         }
                     }
                 }
@@ -177,7 +176,7 @@ export async function fetchMonarchList(id: string, variant: string): Promise<Mon
 }
 
 
-export function parseMonarchList(subpaths: string[], response: any): Monarch[] {
+function parseMonarchList(subpaths: string[], response: any): Monarch[] {
     const collected: Monarch[] = [];
 
     for (const path of subpaths) {
@@ -308,17 +307,76 @@ export async function fetchSameTimers(from: string, to: string, skip = 0, limit 
     }
 
     const json = await response.json();
-    console.log(json)
-
     return json.data.monarchs.map((m: any) => extractMonarch(m, false));
 }
 
-export function findMonarchsByName(searchString: string) {
-    return fetchMonarchs(request_find_monarchs_byname, searchString, 'findmonarchs');
+export async function findMonarchsByName(name: string, skip = 0, limit = 20): Promise<Monarch[]> {
+    const query = `query GetMonarchsByText($name: String!, $skip: Int!, $limit: Int!) {
+        monarchs(
+            filter: { search: { name: $name } }, 
+            order: name, 
+            skip: $skip, 
+            limit: $limit
+        ) {
+            uuid
+            name
+            birth
+            death
+            imageUrl
+            reigns {
+                uuid 
+                country
+            }
+        }
+    }`;
+
+    const variables = { name, skip, limit };
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    return json.data.monarchs.map((m: any) => extractMonarch(m, false));
 }
 
-export function findMonarchsByYear(searchString: string) {
-    return fetchMonarchs(request_find_monarchs_byyear, searchString, 'findmonarchsyear');
+export async function findMonarchsByYear(year: string, skip = 0, limit = 50): Promise<Monarch[]> {
+    // В заголовке объявляем $year. Мы передаем его дважды: и в from, и в to,
+    // чтобы проверить, что 1897 год находится внутри интервала жизни монарха.
+    const query = `query GetPeopleByLivingYear($year: String!, $skip: Int!, $limit: Int!) {
+        monarchs(
+            filter: { lifetime: { range: { from: $year, to: $year } } }, 
+            order: birth, 
+            skip: $skip, 
+            limit: $limit
+        ) {
+            uuid
+            name
+            birth
+            death
+            imageUrl
+            reigns {
+                uuid 
+                country
+            }
+        }
+    }`;
+
+    // Передаем переменную плоским объектом, как в вашем GetSameTimers
+    const variables = { year, skip, limit };
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    console.log(json);
+
+    return json.data.monarchs.map((m: any) => extractMonarch(m, false));
 }
 
 async function fetchMonarchs(

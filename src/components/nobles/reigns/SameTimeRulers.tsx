@@ -9,7 +9,6 @@ export function SameTimeRulers(props: { span: Date[] }) {
     const [sameTimers, setSameTimers] = useState<Monarch[]>([]);
 
     useEffect(() => {
-        console.log(props.span)
         if (sameTimers.length === 0)
             fetchSameTimers(
                 props.span[0].getFullYear().toString(),

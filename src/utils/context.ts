@@ -11,8 +11,3 @@ export const KingdomContext = React.createContext<ContextData>(
         monarch: monarch,
         setMonarch: function (m: Monarch | null): void {}
     })
-
-export const ModeContext = React.createContext<{
-    mode: number,
-    setMode: (i: number)=>void}>
-({mode:0, setMode:(i: number)=>{}})

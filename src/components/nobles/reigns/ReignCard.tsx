@@ -53,6 +53,7 @@ function ReignCard() {
                 groupedMap.push({countries: [...reign.countries], reigns: [reign as Reign]})
             }
         })
+        console.log(groupedMap)
         return groupedMap;
     }
 
@@ -137,7 +138,7 @@ function ReignCard() {
                                         {reign.predecessor && (
                                             <Xseccor
                                                 label={'Predecessor: '}
-                                                onClick={() => navigate(`/noble/${reign.predecessor?.id}`)}
+                                                onClick={() => navigate(`/noble/${reign.predecessor?.monarch?.id}`)}
                                                 displayName={
                                                     monarch?.id === reign.predecessor.monarch?.id ? 'Himself' :  reign.predecessor.monarch?.name
                                                 }
@@ -147,7 +148,7 @@ function ReignCard() {
                                         {reign.successor && (
                                             <Xseccor
                                                 label={'Successor: '}
-                                                onClick={() => navigate(`/noble/${reign.successor?.id}`)}
+                                                onClick={() => navigate(`/noble/${reign.successor?.monarch?.id}`)}
                                                 displayName={
                                                     monarch?.id === reign.successor.monarch?.id ? 'Himself' :  reign.successor.monarch?.name
                                                 }

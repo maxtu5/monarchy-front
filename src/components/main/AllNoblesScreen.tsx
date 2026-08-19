@@ -5,6 +5,7 @@ import {ScrollContainer, ScrollItem} from "../shared/ScrollContainer";
 import GenericTile from "../shared/GenericTile";
 import DisplayName from "../shared/DisplayName";
 import {fetchLivingNobles} from "../../fetchers/fetchersMonarchs";
+import SearchBar from "../search/SearchBar";
 
 function LivingSelector() {
     const [livingNobles, setLivingNobles] = useState<Monarch[]>([])
@@ -43,9 +44,10 @@ function LivingSelector() {
 }
 
 export function AllNoblesScreen() {
-    return (<>
+    return (
+
+        <>
+        <SearchBar/>
         <LivingSelector/>
-        {/*<MonarchSelector/>*/}
-        {/*<SearchBar/>*/}
     </>);
 }

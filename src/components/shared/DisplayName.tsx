@@ -19,7 +19,7 @@ const DisplayName = ({
                      }: Props) => {
 
     const navigate = useNavigate();
-    // console.log(monarch)
+    if (type==="Successor") console.log(monarch)
 
     const handleClick = () => {
         if (!monarch) return;

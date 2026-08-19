@@ -40,6 +40,7 @@ function MonarchScreen() {
         const load = async () => {
             try {
                 const m = await fetchMonarch(id);
+                console.log(m)
                 setMonarch(m);
             } catch (err) {
                 console.error("Failed to load monarch", err);
@@ -115,11 +116,13 @@ function MonarchScreen() {
             <Box sx={{display: screen === 'mobile_vertical' ? 'none' : 'block', width: '20%', mx: 1, mt: 1}}>
                 <Stack spacing={2}>
                     <Infobox/>
+                    {monarch.reigns.length > 0 && <>
                     <StyledOpener
                         onClick={() => setShowSameTimers(!showSameTimers)}
                         label={`Monarchs of the time`}
                     />
                     {showSameTimers && <SameTimeRulers span={reignSpan}/>}
+                    </>}
                 </Stack>
             </Box>
 
