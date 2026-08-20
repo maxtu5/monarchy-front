@@ -1,4 +1,19 @@
 import {Monarch, Reign} from "../utils/types";
+import {base_url, path_post_graphql_query} from "../utils/constants";
+
+export async function sendGraphQLRequest(query: string, variables: Record<string, any>): Promise<any> {
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+    const json = await response.json();
+    if (json.errors && !json.data) {
+        console.error("GraphQL Errors:", json.errors);
+        throw new Error(json.errors?.message || "GraphQL Execution Error");
+    }
+    return json.data;
+}
 
 export function buildPostRequest(query: string, variables: Record<string, any> = {}): RequestInit {
     const body = JSON.stringify({query, variables});
@@ -11,39 +26,70 @@ export function buildPostRequest(query: string, variables: Record<string, any> =
     };
 }
 
-export function parseMonarch(response: any): Monarch | null {
-    if (!response) return null;
+export function extractMonarch(source: any, withFamily = false): Monarch | null {
+    if (!source) return null;
+
+    const reigns: Reign[] = Array.isArray(source.reigns)
+        ? source.reigns
+            .filter((r: any) => r !== null && r.uuid !== null && r.uuid !== 'null')
+            .map((r: any) => parseReign(r, withFamily))
+            .filter((r: any): r is Reign => r !== null)
+        : [];
+
+    const monarch: Monarch = {
+        id: source.uuid ?? null,
+        name: source.name ?? null,
+        description: source.description ?? null,
+        url: source.url ?? null,
+        gender: source.gender ?? null,
+        birth: source.birth ? new Date(source.birth) : null,
+        death: source.death ? new Date(source.death) : null,
+        status: source.status ?? null,
+        imageUrl: source.imageUrl ? sanitizeImageUrl(source.imageUrl) : (source.imageUrl ?? ''),
+        imageCaption: source.imageCaption ?? null,
+        reigns: reigns,
+        father: null,
+        mother: null,
+        children: []
+    };
+
+    if (withFamily) {
+        monarch.father = source.father ? extractMonarch(source.father, false) : null;
+        monarch.mother = source.mother ? extractMonarch(source.mother, false) : null;
+
+        const childrenSource = source.gender === 'MALE'
+            ? source.paternalChildren
+            : source.maternalChildren;
+
+        monarch.children = Array.isArray(childrenSource)
+            ? childrenSource
+                .map((child: any) => extractMonarch(child, false))
+                .filter((m): m is Monarch => m !== null)
+            : [];
+    }
+
+    return monarch;
+}
+
+export function parseReign(source: any, withDetails = false): Reign | null {
+    if (!source) return null;
 
     return {
-        id: response.uuid ?? null,
-        name: response.name ?? null,
-        gender: response.gender ?? null,
-        birth: response.birth!==null ? new Date(response.birth) : null,
-        death: response.death!==null ? new Date(response.death) : null,
-        status: response.status ?? null,
-        imageUrl: sanitizeImageUrl(response.imageUrl) ?? '',
-        description: response.description ?? null,
-        imageCaption: response.imageCaption ?? null,
+        id: source.uuid ?? null,
+        title: source.title ?? null,
+        country: source.country ?? null,
+        start: source.start ? new Date(source.start) : null,
+        end: source.end ? new Date(source.end) : null,
+        coronation: source.coronation ? new Date(source.coronation) : null,
 
-        mother: response.mother ? parseMonarch(response.mother) : null,
-        father: response.father ? parseMonarch(response.father) : null,
+        successor: withDetails && source.successor
+            ? parseReign(source.successor, false)
+            : null,
+        predecessor: withDetails && source.predecessor
+            ? parseReign(source.predecessor, false)
+            : null,
 
-        reigns: Array.isArray(response.reigns)
-            ? response.reigns.map((reign: any) => parseReign(reign))
-            : [],
-
-        url: response.url ?? null,
-
-        children: Array.isArray(
-            response.gender === 'MALE'
-                ? response.paternalChildren
-                : response.maternalChildren
-        )
-            ? (response.gender === 'MALE'
-                    ? response.paternalChildren
-                    : response.maternalChildren
-            ).map((child: any) => parseMonarch(child))
-            : []
+        monarch: source.monarch ? extractMonarch(source.monarch, false) : null
     };
 }
 
@@ -64,24 +110,4 @@ export function sanitizeImageUrl(imageUrl: string | undefined): string|undefined
     ret = !ret ? ret : ret.includes('260px') ? ret.replace('260px', '250px') : ret;
 
     return ret;
-}
-
-export function parseReign(response: any): Reign | null {
-    if (!response) return null;   // handles null, undefined, missing
-
-    return {
-        id: response.uuid ?? null,
-        title: response.title ?? null,
-        start: response.start!==null ? new Date(response.start) : null,
-        end: response.end!==null ? new Date(response.end) : null,
-        country: response.country ?? null,
-        coronation: response.coronation ?? null,
-        predecessor: response.predecessor
-            ? parseReign(response.predecessor)
-            : null,
-        successor: response.successor
-            ? parseReign(response.successor)
-            : null,
-        monarch: parseMonarch(response.monarch)
-    };
 }

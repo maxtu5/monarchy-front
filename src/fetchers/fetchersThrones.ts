@@ -1,6 +1,6 @@
 import { Reign, Throne, ThronePlus} from "../utils/types";
-import {base_url, path_post_graphql_query, path_get_graphql_query} from "../utils/constants";
-import { buildPostRequest, parseMonarch, parseReign, sanitizeImageUrl} from "./fetchersUtils";
+import {extractMonarch, parseReign, sanitizeImageUrl, sendGraphQLRequest} from "./fetchersUtils";
+
 
 export async function fetchAllThrones(): Promise<Throne[]> {
     const query = `{ 
@@ -15,30 +15,26 @@ export async function fetchAllThrones(): Promise<Throne[]> {
         reigns {
             start
         }
-    }}`
-    const request = buildPostRequest(query);
-    const response = await fetch(`${base_url}${path_post_graphql_query}`, request)
-    if (!response.ok) {
-        throw new Error(`Network error: ${response.status}`);
-    }
-    const json = await response.json();
-
-    return parseAllThrones(json);
+    }}`;
+    const data = await sendGraphQLRequest(query, {});
+    return parseAllThrones(data);
 }
 
-function parseAllThrones(response: any): Throne[] {
-    return response.data.thrones.map((throneData: any): Throne => {
+function parseAllThrones(data: any): Throne[] {
+    return (data?.thrones || []).map((throneData: any): Throne => {
+        const latest = throneData.latestReign;
+
         return {
-            name: throneData.name,
-            country: throneData.country,
-            flagUrl: throneData.flagUrl ? sanitizeImageUrl(throneData.flagUrl) : throneData.flagUrl,
-            years: buildYears(throneData.reigns, throneData.latestReign),
-            exists: throneData.latestReign.end === null,
-            monarchs: throneData.reigns.length,
-            geography: throneData.geography,
-            lastMonarch: parseMonarch(throneData.latestReign.monarch),
-        }
-    })
+            name: throneData.name ?? null,
+            country: throneData.country ?? null,
+            flagUrl: throneData.flagUrl ? sanitizeImageUrl(throneData.flagUrl) : (throneData.flagUrl ?? ''),
+            years: buildYears(throneData.reigns, latest),
+            exists: latest ? latest.end === null : false,
+            monarchs: Array.isArray(throneData.reigns) ? throneData.reigns.length : 0,
+            geography: throneData.geography ?? null,
+            lastMonarch: latest?.monarch ? extractMonarch(latest.monarch, false) : null,
+        };
+    });
 }
 
 export async function fetchThroneDetails(country: string): Promise<ThronePlus> {
@@ -63,42 +59,54 @@ export async function fetchThroneDetails(country: string): Promise<ThronePlus> {
     }`;
     const variables = { country: country.toUpperCase() };
 
-    const request = buildPostRequest(query, variables);
-    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
-
-    if (!response.ok) {
-        throw new Error(`Network error: ${response.status}`);
-    }
-
-    const json = await response.json();
-    return parseThroneDetails(json);
+    const data = await sendGraphQLRequest(query, variables);
+    return parseThroneDetails(data);
 }
 
-function parseThroneDetails(response: any): ThronePlus {
-    const throne = response.data.throne;
-    const retval = {
-        name: throne.name,
-        country: throne.country,
-        flagUrl: throne.flagUrl ? sanitizeImageUrl(throne.flagUrl) : throne.flagUrl,
-        years: buildYears(throne.reigns, throne.latestReign),
-        lastMonarch: parseMonarch(throne.latestReign.monarch),
-        exists: throne.latestReign.end === null,
-        monarchs: throne.reigns.length,
-        geography: throne.geography,
-        description: throne.description,
-        reigns: throne.reigns
-            .map((reign: any) => parseReign(reign))
-            .sort((r1: Reign, r2: Reign) => r1.start===null || r2.start===null ? 0 : (r1.start > r2?.start ? -1 : 1))
+function parseThroneDetails(data: any): ThronePlus {
+    const throne = data?.throne;
+    if (!throne) {
+        throw new Error("Throne data is missing in the response");
     }
-    // console.log(retval)
-    return retval
+
+    const latest = throne.latestReign;
+
+    return {
+        name: throne.name ?? null,
+        country: throne.country ?? null,
+        flagUrl: throne.flagUrl ? sanitizeImageUrl(throne.flagUrl) : (throne.flagUrl ?? ''),
+        years: buildYears(throne.reigns, latest),
+        lastMonarch: latest?.monarch ? extractMonarch(latest.monarch, false) : null,
+        exists: latest ? latest.end === null : false,
+        monarchs: Array.isArray(throne.reigns) ? throne.reigns.length : 0,
+        geography: throne.geography ?? null,
+        description: throne.description ?? null,
+        reigns: Array.isArray(throne.reigns)
+            ? throne.reigns
+                .map((reign: any) => parseReign(reign, false))
+                .filter((r: any): r is Reign => r !== null)
+                .sort((r1: Reign, r2: Reign) => {
+                    if (!r1.start || !r2.start) return 0;
+                    return r2.start.getTime() - r1.start.getTime(); // Сортировка от новых к старым
+                })
+            : []
+    };
 }
 
 function buildYears(reigns: any, latestReign: any): string {
-    return reigns
-            .map((r: any) => r.start)
-            .filter((s: any): s is string => typeof s === 'string' && s.length >= 4)
-            .map((s: string) => s.substring(0, 4))
-            .sort()[0] + ' - ' +
-        (latestReign.end === null ? 'now' : latestReign.end.substring(0, 4));
+    if (!Array.isArray(reigns) || reigns.length === 0) {
+        return latestReign?.end ? `? - ${latestReign.end.substring(0, 4)}` : '? - now';
+    }
+    const startYears = reigns
+        .map((r: any) => r?.start)
+        .filter((s: any): s is string => typeof s === 'string' && s.length >= 4)
+        .map((s: string) => s.substring(0, 4))
+        .sort();
+
+    const firstYear = startYears.length > 0 ? startYears[0] : '?';
+    const lastYear = (!latestReign || latestReign.end === null)
+        ? 'now'
+        : latestReign.end.substring(0, 4);
+
+    return `${firstYear} - ${lastYear}`;
 }

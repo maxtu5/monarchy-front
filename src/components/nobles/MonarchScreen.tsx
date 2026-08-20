@@ -40,7 +40,6 @@ function MonarchScreen() {
         const load = async () => {
             try {
                 const m = await fetchMonarch(id);
-                console.log(m)
                 setMonarch(m);
             } catch (err) {
                 console.error("Failed to load monarch", err);

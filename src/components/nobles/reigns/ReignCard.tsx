@@ -53,7 +53,6 @@ function ReignCard() {
                 groupedMap.push({countries: [...reign.countries], reigns: [reign as Reign]})
             }
         })
-        console.log(groupedMap)
         return groupedMap;
     }
 

@@ -1,5 +1,9 @@
-import {Monarch} from "../utils/types";
-import {extractMonarch, sendGraphQLRequest} from "./fetchersUtils";
+import {Monarch, Reign} from "../utils/types";
+import {
+    base_url,
+    path_post_graphql_query,
+} from "../utils/constants";
+import { buildPostRequest, extractMonarch, sanitizeImageUrl} from "./fetchersUtils";
 
 export async function fetchMonarch(id: string): Promise<Monarch | null> {
     const query = `query GetMonarchWithFamily($uuid: String!) { 
@@ -53,8 +57,15 @@ export async function fetchMonarch(id: string): Promise<Monarch | null> {
         }
     }`;
     const variables = { uuid: id };
-    const data = await sendGraphQLRequest(query, variables);
-    return data?.monarch ? extractMonarch(data.monarch, true) : null;
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    return extractMonarch(json.data.monarch, false);
 }
 
 const RELATIONSHIPS: Record<string, {
@@ -148,129 +159,21 @@ export async function fetchMonarchList(id: string, variant: string): Promise<Mon
     if (!rel) return [];
 
     const variables = { uuid: id };
-    const data = await sendGraphQLRequest(rel.query, variables);
-    if (!data?.monarch) return [];
+    const request = buildPostRequest(rel.query, variables);
 
-    let list = parseMonarchList(rel.paths, data.monarch);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+    if (!response.ok) throw new Error(`Network error: ${response.status}`);
+
+    const json = await response.json();
+    const root = json.data.monarch;
+
+    let list = parseMonarchList(rel.paths, root);
+
     if (rel.post) list = rel.post(list, id);
 
     return list;
 }
 
-export async function fetchRandomNobles(skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `query GetRandomNobles($skip: Int!, $limit: Int!) {
-        monarchs(order: random, skip: $skip, limit: $limit) {
-            uuid
-            name
-            birth
-            death
-            imageUrl
-            reigns {
-                uuid 
-                country
-            }
-        }
-    }`;
-    const variables = { skip, limit };
-    const data = await sendGraphQLRequest(query, variables);
-    return (data?.monarchs || []).map((m: any) => extractMonarch(m, false));
-}
-
-export async function fetchLivingNobles(skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `query GetLivingNobles($skip: Int!, $limit: Int!) {
-        monarchs(
-            filter: { lifetime: { range: { from: "1890-infinity", to: "null" } } }, 
-            order: birth, 
-            skip: $skip, 
-            limit: $limit
-        ) {
-            uuid
-            name
-            birth
-            death
-            imageUrl
-            reigns {
-                uuid 
-                country
-            }
-        }
-    }`;
-    const variables = { skip, limit };
-    const data = await sendGraphQLRequest(query, variables);
-    return (data?.monarchs || []).map((m: any) => extractMonarch(m, false));
-}
-
-export async function fetchSameTimers(from: string, to: string, skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `query GetSameTimers($from: String!, $to: String!, $skip: Int!, $limit: Int!) {
-        monarchs(
-            filter: { reigntime: { range: { from: $from, to: $to } } }, 
-            order: birth, 
-            skip: $skip, 
-            limit: $limit
-        ) {
-            uuid
-            name
-            birth
-            death
-            imageUrl
-            reigns {
-                uuid 
-                country
-            }
-        }
-    }`;
-    const variables = { from, to, skip, limit };
-    const data = await sendGraphQLRequest(query, variables);
-    return (data?.monarchs || []).map((m: any) => extractMonarch(m, false));
-}
-
-export async function findMonarchsByName(name: string, skip = 0, limit = 20): Promise<Monarch[]> {
-    const query = `query GetMonarchsByText($name: String!, $skip: Int!, $limit: Int!) {
-        monarchs(
-            filter: { search: { name: $name } }, 
-            order: name, 
-            skip: $skip, 
-            limit: $limit
-        ) {
-            uuid
-            name
-            birth
-            death
-            imageUrl
-            reigns {
-                uuid 
-                country
-            }
-        }
-    }`;
-    const variables = { name, skip, limit };
-    const data = await sendGraphQLRequest(query, variables);
-    return (data?.monarchs || []).map((m: any) => extractMonarch(m, false));
-}
-
-export async function findMonarchsByYear(year: string, skip = 0, limit = 50): Promise<Monarch[]> {
-    const query = `query GetPeopleByLivingYear($year: String!, $skip: Int!, $limit: Int!) {
-        monarchs(
-            filter: { lifetime: { range: { from: $year, to: $year } } }, 
-            order: birth, 
-            skip: $skip, 
-            limit: $limit
-        ) {
-            uuid
-            name
-            birth
-            death
-            imageUrl
-            reigns {
-                uuid 
-                country
-            }
-        }
-    }`;
-    const variables = { year, skip, limit };
-    const data = await sendGraphQLRequest(query, variables);
-    return (data?.monarchs || []).map((m: any) => extractMonarch(m, false));
-}
 
 function parseMonarchList(subpaths: string[], response: any): Monarch[] {
     const collected: Monarch[] = [];
@@ -312,3 +215,147 @@ function parseMonarchList(subpaths: string[], response: any): Monarch[] {
     );
     return unique;
 }
+
+const MONARCH_FIELDS_FRAGMENT = `
+    uuid
+    name
+    birth
+    death
+    imageUrl
+    reigns {
+        uuid 
+        country
+    }
+`;
+
+async function executeMonarchsQuery(
+    queryName: string,
+    filterString: string,
+    orderString: string,
+    variables: Record<string, any>
+): Promise<Monarch[]> {
+
+    const query = `query ${queryName}(${Object.keys(variables).map(k => `$${k}: Int!`).join(', ')}) {
+        monarchs(${filterString}, order: ${orderString}, skip: $skip, limit: $limit) {
+            ${MONARCH_FIELDS_FRAGMENT}
+        }
+    }`;
+
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+    if (!response.ok) {
+        throw new Error(`Network error: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.errors && !json.data?.monarchs) {
+        console.error("GraphQL Errors:", json.errors);
+        throw new Error(json.errors[0]?.message || "GraphQL execution error");
+    }
+
+    return (json.data?.monarchs || []).map((m: any) => extractMonarch(m, false));
+}
+
+export function fetchRandomNobles(skip = 0, limit = 20): Promise<Monarch[]> {
+    return executeMonarchsQuery("GetRandomNobles", "", "random", { skip, limit });
+}
+
+export function fetchLivingNobles(skip = 0, limit = 20): Promise<Monarch[]> {
+    return executeMonarchsQuery(
+        "GetLivingNobles",
+        'filter: { lifetime: { range: { from: "1890-infinity", to: "null" } } }',
+        "birth",
+        { skip, limit }
+    );
+}
+
+export function fetchSameTimers(from: string, to: string, skip = 0, limit = 20): Promise<Monarch[]> {
+    const query = `query GetSameTimers($from: String!, $to: String!, $skip: Int!, $limit: Int!) {
+        monarchs(filter: { reigntime: { range: { from: $from, to: $to } } }, order: birth, skip: $skip, limit: $limit) {
+            ${MONARCH_FIELDS_FRAGMENT}
+        }
+    }`;
+
+    return runDirectQuery(query, { from, to, skip, limit });
+}
+
+export function findMonarchsByName(name: string, skip = 0, limit = 20): Promise<Monarch[]> {
+    const query = `query GetMonarchsByText($name: String!, $skip: Int!, $limit: Int!) {
+        monarchs(filter: { search: { name: $name } }, order: name, skip: $skip, limit: $limit) {
+            ${MONARCH_FIELDS_FRAGMENT}
+        }
+    }`;
+
+    return runDirectQuery(query, { name, skip, limit });
+}
+
+export function findMonarchsByYear(year: string, skip = 0, limit = 50): Promise<Monarch[]> {
+    const query = `query GetPeopleByLivingYear($year: String!, $skip: Int!, $limit: Int!) {
+        monarchs(filter: { lifetime: { range: { from: $year, to: $year } } }, order: birth, skip: $skip, limit: $limit) {
+            ${MONARCH_FIELDS_FRAGMENT}
+        }
+    }`;
+
+    return runDirectQuery(query, { year, skip, limit });
+}
+
+async function runDirectQuery(query: string, variables: Record<string, any>): Promise<Monarch[]> {
+    const request = buildPostRequest(query, variables);
+    const response = await fetch(`${base_url}${path_post_graphql_query}`, request);
+
+    if (!response.ok) throw new Error(`Network error: ${response.status}`);
+
+    const json = await response.json();
+    if (json.errors && !json.data?.monarchs) {
+        throw new Error(json.errors[0]?.message || "GraphQL error");
+    }
+
+    return (json.data?.monarchs || []).map((m: any) => extractMonarch(m, false));
+}
+
+// function extractMonarch(source: any, withDetails: boolean): Monarch {
+//     const reigns: Reign[] = []
+//     if (source.hasOwnProperty('reigns')) {
+//         [...source.reigns]
+//                 .filter((r) => r !== null && r.uuid !== null && r.uuid !== 'null')
+//                 .map((r) => {
+//                     return createReign(r, withDetails)
+//                 })
+//             .forEach(r=> reigns.push(r))
+//     }
+//     return {
+//         id: source.uuid,
+//         name: source.name,
+//         description: source.description,
+//         url: source.url,
+//         gender: source.gender,
+//         birth: source.birth === null ? null : new Date(source.birth),
+//         death: source.death === null ? null : new Date(source.death),
+//         status: source.status,
+//         imageUrl: source.imageUrl ? sanitizeImageUrl(source.imageUrl) : source.imageUrl,
+//         imageCaption: source.imageCaption,
+//         reigns: reigns,
+//         father: null,
+//         mother: null,
+//         children: []
+//     }
+// }
+//
+// function createReign(source: any, withDetails: boolean): Reign {
+//     const succ: Reign | null = !withDetails? null :
+//         source.successor === null? null :createReign(source.successor.monarch, false)
+//     const pred: Reign | null = !withDetails? null :
+//         source.predecessor === null? null :createReign(source.predecessor.monarch, false)
+//     return {
+//         id: source.uuid,
+//         title: source.title,
+//         country: source.country,
+//         start: source.start===null? null : new Date(source.start),
+//         end: source.end===null? null : new Date(source.end),
+//         coronation: source.coronation===null? null : new Date(source.coronation),
+//         successor: succ,
+//         predecessor: pred,
+//         monarch: extractMonarch(source, true)
+//     };
+// }
+

@@ -19,7 +19,6 @@ export function SameTimeRulers(props: { span: Date[] }) {
     }, []);
 
     function groupMonarchsByCountries(monarchs: Monarch[]): { countries: string[]; monarchs: Monarch[] }[] {
-        console.log(monarchs)
         const retval: { countries: string[]; monarchs: Monarch[] }[] = [];
 
         monarchs
@@ -38,8 +37,6 @@ export function SameTimeRulers(props: { span: Date[] }) {
 
         return retval;
     }
-
-    console.log(sameTimers)
 
     return (
         <Box>
