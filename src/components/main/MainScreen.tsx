@@ -76,6 +76,9 @@ function NobleSelector() {
 }
 
 export function MainScreen() {
+    useEffect(() => {
+        document.title = "Monarchy";
+    }, []);
     return (<>
         <ThroneSelector/>
         <NobleSelector/>

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Box, CircularProgress, Divider, Typography} from "@mui/material";
 import {KingdomContext} from "../../utils/context";
 import {Throne} from "../../utils/types";
@@ -37,6 +37,9 @@ function Classifier() {
 
 function AllThronesScreen() {
     const {allThrones} = useContext(KingdomContext)
+    useEffect(() => {
+        document.title = "Thrones";
+    }, []);
 
     if (allThrones.length === 0) {
         return (

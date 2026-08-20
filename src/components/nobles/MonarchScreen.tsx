@@ -41,6 +41,7 @@ function MonarchScreen() {
             try {
                 const m = await fetchMonarch(id);
                 setMonarch(m);
+                document.title = m?.name || 'Monarchy';
             } catch (err) {
                 console.error("Failed to load monarch", err);
             }
@@ -48,6 +49,7 @@ function MonarchScreen() {
         load();
         return () => setMonarch(null);
     }, [id]);
+
 
     useEffect(() => {
         setShowSameTimers(false)

@@ -4,10 +4,10 @@ import MonarchScreen from "../nobles/MonarchScreen";
 import React from "react";
 import {Route, Routes} from "react-router-dom";
 import {MainScreen} from "./MainScreen";
-import {AllNoblesScreen} from "./AllNoblesScreen";
 import {ComingSoonScreen} from "./ComingSoonScreen";
 import NavBar from "./NavBar";
 import {Box} from "@mui/material";
+import {AllNoblesScreen} from "../nobles/AllNoblesScreen";
 
 
 export default function AppRouter() {

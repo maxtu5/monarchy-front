@@ -111,8 +111,9 @@ function ThroneScreen() {
 
         const load = async () => {
             try {
-                const td = await fetchThroneDetails(country);
-                setThrone(td);
+                const throneData = await fetchThroneDetails(country);
+                setThrone(throneData);
+                document.title = throneData.name;
             } catch (err) {
                 console.error("Failed to load throne details", err);
             }

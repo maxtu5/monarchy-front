@@ -44,6 +44,10 @@ function LivingSelector() {
 }
 
 export function AllNoblesScreen() {
+    useEffect(() => {
+        document.title = "Nobles";
+    }, []);
+
     return (
 
         <>
